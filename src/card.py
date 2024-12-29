@@ -13,6 +13,8 @@ class Card:
     '''Class for a card in the Gulf card game'''
     def __init__(self, suit: Suit, value: int):
         self.suit = suit
+        if value < 0 or value > 12:
+            raise ValueError('Value must be between 0 and 12')
         self.value = value
 
     def __str__(self):
@@ -49,9 +51,9 @@ class Card:
     
     def __sub__(self, value):
         if isinstance(value, Card):
-            return self.value + value.value
+            return self.value - value.value
         elif isinstance(value, int):
-            return self.value + value
+            return self.value - value
         else:
             raise ValueError('Unsupported operand type')
 
