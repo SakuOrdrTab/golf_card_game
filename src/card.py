@@ -19,28 +19,28 @@ class Card:
 
     def __str__(self):
         return f'{self.value} of {self.suit.name}'
-    
+
     def __repr__(self):
         return f'{self.value} of {self.suit.name}'
-    
+
     def __eq__(self, value):
         return self.value == value
-    
+
     def __lt__(self, value):
         return self.value < value
-    
+
     def __gt__(self, value):
         return self.value > value
-    
+
     def __le__(self, value):
         return self.value <= value
 
     def __ge__(self, value):
         return self.value >= value
-    
+
     def __ne__(self, value):
         return self.value != value
-    
+
     def __add__(self, value):
         if isinstance(value, Card):
             return self.value + value.value
@@ -48,7 +48,7 @@ class Card:
             return self.value + value
         else:
             raise ValueError('Unsupported operand type')
-    
+
     def __sub__(self, value):
         if isinstance(value, Card):
             return self.value - value.value
