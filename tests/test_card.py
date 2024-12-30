@@ -20,8 +20,8 @@ def test_card_creation():
 def test_card_string_representation():
     '''Test string representation of a card'''
     card = Card(Suit.HEARTS, 5)
-    assert str(card) == "5 of HEARTS"
-    assert repr(card) == "5 of HEARTS"
+    assert str(card) == "♡5"
+    assert repr(card) == "♡5"
 
 def test_card_equality():
     '''Test card equality'''
