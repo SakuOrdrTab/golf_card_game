@@ -1,0 +1,7 @@
+colorama==0.4.6
+-e git+https://github.com/SakuOrdrTab/golf_card_game.git@bea2b93a0a35f30ec9b79b3d70e4ce0e0c3729f9#egg=golf_card_game
+iniconfig==2.0.0
+packaging==24.2
+pluggy==1.5.0
+pytest==8.3.4
+setuptools==75.6.0
