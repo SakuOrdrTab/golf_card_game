@@ -4,13 +4,16 @@ from enum import Enum
 
 class Suit(Enum):
     '''Enumeration for the suits of a card'''
-    SPADES = 1
-    HEARTS = 2
-    DIAMONDS = 3
-    CLUBS = 4
+    SPADES = '\U00002664'
+    HEARTS = '\U00002661'
+    DIAMONDS = '\U00002662'
+    CLUBS = '\U00002667'
 
 class Card:
     '''Class for a card in the Gulf card game'''
+
+
+
     def __init__(self, suit: Suit, value: int):
         self.suit = suit
         if value < 0 or value > 12:
@@ -18,10 +21,10 @@ class Card:
         self.value = value
 
     def __str__(self):
-        return f'{self.value} of {self.suit.name}'
+        return f'{self.suit.value}{self.value}'
 
     def __repr__(self):
-        return f'{self.value} of {self.suit.name}'
+        return f'{self.suit.value}{self.value}'
 
     def __eq__(self, value):
         return self.value == value
