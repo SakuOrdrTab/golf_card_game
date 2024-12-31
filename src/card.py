@@ -11,20 +11,22 @@ class Suit(Enum):
 
 class Card:
     '''Class for a card in the Gulf card game'''
-
-
-
     def __init__(self, suit: Suit, value: int):
         self.suit = suit
         if value < 0 or value > 12:
             raise ValueError('Value must be between 0 and 12')
         self.value = value
+        self.visible = False
 
     def __str__(self):
-        return f'{self.suit.value}{self.value}'
+        # return f'{self.suit.value}{self.value}' if self.visible else 'XX'
+        if self.visible:
+            return f'{self.suit.value}{self.value}'
+        else:
+            return 'XX'
 
     def __repr__(self):
-        return f'{self.suit.value}{self.value}'
+        return self.__str__()
 
     def __eq__(self, value):
         return self.value == value

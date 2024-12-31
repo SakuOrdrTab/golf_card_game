@@ -16,10 +16,15 @@ class Game():
             self.players.append(ComputerPlayer())
         for player in self.players:
             table_cards = self.deal_initial_cards()
+            for i in range(len(table_cards)//3):
+                player.table_cards.append(table_cards[i*3:(i+1)*3])
             print('player has been dealt the following cards:')
             print(table_cards)
-            player.table_cards = table_cards
-            player.turn_initial_cards()
+            for card in table_cards:
+                print("Card visibility: ", card.visible)
+            turned_cards = player.turn_initial_cards(player.table_cards)
+
+        print("Complete init")
 
     def deal_initial_cards(self) -> list:
         '''Deal initial cards to the a player'''

@@ -37,5 +37,6 @@ class ComputerPlayer(Player):
     def turn_initial_cards(self, initial_table_cards):
         result = []
         for r, row in enumerate(initial_table_cards):
-            result.append((r + 1), randint(1, len(row)))
+            result.append(((r + 1), randint(1, len(row))))
+        print("Computer turns initial cards: ", result)
         return result
