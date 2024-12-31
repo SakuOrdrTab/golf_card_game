@@ -1,5 +1,5 @@
 from .player import Player
-from random import choice
+from random import choice, randint
 
 class ComputerPlayer(Player):
     def get_player_name(self) -> str:
@@ -33,4 +33,9 @@ class ComputerPlayer(Player):
                     print(f"Computer returning {r+1}, {c+1}")
                     return (r + 1, c + 1)
         return ("p", None)
-    
+
+    def turn_initial_cards(self, initial_table_cards):
+        result = []
+        for r, row in enumerate(initial_table_cards):
+            result.append((r + 1), randint(1, len(row)))
+        return result

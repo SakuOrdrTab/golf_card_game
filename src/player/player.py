@@ -32,5 +32,5 @@ class Player(ABC):
         pass
 
     @abstractmethod
-    def turn_initial_cards(self, shape):
+    def turn_initial_cards(self, initial_table_cards : list) -> list:
         pass

@@ -42,3 +42,18 @@ class HumanPlayer(Player):
             print("the card in your table and that card goes to the played deck.")
             print("Coordinates are for example 1,2 where 1 is the first row and 2 is")
             print("the second column")
+
+    def turn_initial_cards(self, initial_table_cards):
+        result = []
+        for r, row in enumerate(initial_table_cards):
+            print(f"Which card do you want to turn for row {row}")
+            while True:
+                try:
+                    ans = int(input())
+                    if ans < 1 or ans > len(row):
+                        raise ValueError(f"Card number must be between 1 and {len(row)}!")
+                    break
+                except:
+                    print("Try again...")
+            result.append((r + 1, ans))
+        return result
