@@ -1,9 +1,7 @@
 '''Game controller for card game "Golf"'''
 
-class Player():
-    pass
-
 from src.card_deck import CardDeck, Card, Suit
+from src.player import HumanPlayer, ComputerPlayer, Player
 
 class Game():
     '''Game controller for card game "Golf"'''
@@ -13,13 +11,15 @@ class Game():
             raise ValueError('Number of players must be at least 2')
         self.players = []
         if human_player:
-            self.players.append(Player())
+            self.players.append(HumanPlayer())
         for _ in range(1, num_players):
-            self.players.append(Player())
+            self.players.append(ComputerPlayer())
         for player in self.players:
             table_cards = self.deal_initial_cards()
             print('player has been dealt the following cards:')
             print(table_cards)
+            player.table_cards = table_cards
+            player.turn_initial_cards()
 
     def deal_initial_cards(self) -> list:
         '''Deal initial cards to the a player'''

@@ -30,3 +30,7 @@ class Player(ABC):
         'hand_card' = Card
         })'''
         pass
+
+    @abstractmethod
+    def turn_initial_cards(self, shape):
+        pass

@@ -1,4 +1,4 @@
-from player import Player
+from .player import Player
 
 class HumanPlayer(Player):
     def get_player_name(self) -> str:
