@@ -19,11 +19,7 @@ class Card:
         self.visible = False
 
     def __str__(self):
-        # return f'{self.suit.value}{self.value}' if self.visible else 'XX'
-        if self.visible:
-            return f'{self.suit.value}{self.value}'
-        else:
-            return 'XX'
+        return f'{self.suit.value}{self.value}' if self.visible else 'XX'
 
     def __repr__(self):
         return self.__str__()

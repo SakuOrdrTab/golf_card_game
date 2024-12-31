@@ -1,6 +1,6 @@
 '''Card deck class for the golf game'''
 
-from card import Card, Suit
+from .card import Card, Suit
 
 from random import shuffle
 

@@ -20,9 +20,14 @@ class Game():
                 player.table_cards.append(table_cards[i*3:(i+1)*3])
             print('player has been dealt the following cards:')
             print(table_cards)
-            for card in table_cards:
-                print("Card visibility: ", card.visible)
+            # for card in table_cards:
+            #     print("Card visibility: ", card.visible)
             turned_cards = player.turn_initial_cards(player.table_cards)
+            for row, column in turned_cards:
+                print(player.table_cards[row-1][column-1])
+                player.table_cards[row-1][column-1].visible = True
+            print("After turn: ")
+            print(player.table_cards)
 
         print("Complete init")
 
