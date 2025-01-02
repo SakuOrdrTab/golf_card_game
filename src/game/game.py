@@ -25,26 +25,49 @@ class Game():
             turned_cards = player.turn_initial_cards(player.table_cards)
             for row, column in turned_cards:
                 player.table_cards[row-1][column-1].visible = True
-
+        # Turn initial card from the drawing deck to the played cards
+        self.deck.deal_first_card()
         print("Complete init")
+        print(f"gamestatus for humanplayer:", self.get_game_status_for_player(self.players[0]))
+        print("Playing a turn for human player:")
+        self.player_plays_turn(self.players[0])
+        print("Gamestatus after:")
+        print(f"gamestatus for humanplayer:", self.get_game_status_for_player(self.players[0]))
 
     def deal_initial_cards(self) -> list:
         '''Deal initial cards to the a player'''
         return [self.deck.draw_from_deck() for _ in range(9)]
 
-    def player_gets_card(self, player: Player) -> None:
+    def player_gets_card(self, player: Player) -> Card:
         '''Player gets a playing card from either deck'''
-        pass
+        action = player.get_draw_action(self.get_game_status_for_player(player))
+        print("Got action: ", action)
+        if action == "d": # d is drawing deck
+            card = self.deck.draw_from_deck()
+            card.visible = True
+            return card
+        elif action == "p": # p is played cards deck
+            card = self.deck.draw_from_played()
+            card.visible = True
+            return card
+        else:
+            raise ValueError("Got invalid return from Player.get_draw_action()")
 
-    def player_plays_card(self, player: Player) -> None:
+    def player_plays_card(self, player: Player, hand_card : Card) -> None:
         '''Player plays a card from their hand'''
-        pass
+        action = player.get_play_action(self.get_game_status_for_player(player, hand_card))
+        print("Got action: ", action)
+        if action[0] == "p": # p means play card away from hand to played deck
+            self.deck.add_to_played(hand_card)
+        else: # should be a tuple (row, column) for play to table
+            self.deck.add_to_played(player.table_cards[action[0]-1][action[1]-1])
+            player.table_cards[action[0]-1][action[1]-1] = hand_card
 
     def player_plays_turn(self, player: Player) -> None:
         '''Play a turn of the game'''
         for player in self.players:
-            self.player_gets_card(player)
-            self.player_plays_card(player)
+            hand_card = self.player_gets_card(player)
+            self.player_plays_card(player, hand_card)
 
     def check_full_rows(self, player: Player) -> None:
         '''Check if the player has a full row and remove'''
@@ -67,3 +90,30 @@ class Game():
     def play_game(self) -> None:
         '''Play the game'''
         pass
+
+    def get_game_status_for_player(self, player : Player, hand_card = None) -> dict:
+        '''Getter method for game status from a players perspective'''
+        def table_cards_list(pl : Player) -> list:
+            # helper function for getting only visible information to pass
+            res = []
+            for row in pl.table_cards:
+                for card in row:
+                    res.append(str(card))
+            return res
+        game_status = {}
+        game_status['player'] = list(table_cards_list(player))
+        game_status['other_players'] = []
+        for iter_player in self.players:
+            if iter_player is player:
+                # print("Not adding the actual player")
+                continue
+            else:
+                game_status['other_players'].append(table_cards_list(iter_player))
+        if hand_card:
+            game_status['hand_card'] = hand_card
+        
+        if len(self.deck.played_cards) > 0:
+            game_status['played_top_card'] = self.deck.get_last_played_card()
+        else:
+            game_status['played_top_card'] = None
+        return game_status

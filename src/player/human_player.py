@@ -12,7 +12,8 @@ class HumanPlayer(Player):
         })'''
         print("Do you want to draw from the (d)eck or (p)layed cards? ")
         while True:
-            if answer := input().lower() in ['d', 'p']:
+            answer = input().lower()
+            if answer in ['d', 'p']:
                 return answer
             else:
                 print("Invalid command, please input 'd' or 'p'")
@@ -32,7 +33,7 @@ class HumanPlayer(Player):
                 return ("p", None)
             else:
                 try:
-                    row, column = [int(x) for x in answer.split(",").strip()]
+                    row, column = [int(x.strip()) for x in answer.split(",")]
                     print("After split: ", row, column)
                     return (row, column)
                 except:

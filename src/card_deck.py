@@ -27,6 +27,7 @@ class CardDeck:
     def deal_first_card(self) -> None:
         '''Deal the first card from the deck to the played deck'''
         self.played_cards.append(self.draw_from_deck())
+        self.played_cards[-1].visible = True
 
     def draw_from_played(self) -> Card:
         '''Draw a card from the played cards. The drawn card is the last card in 
@@ -38,6 +39,7 @@ class CardDeck:
 
     def add_to_played(self, card: Card) -> None:
         '''Add a card to the played cards'''
+        card.visible = True # Ensure card is always visible in played deck
         self.played_cards.append(card)
 
     def get_last_played_card(self) -> Card:

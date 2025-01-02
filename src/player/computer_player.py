@@ -25,11 +25,19 @@ class ComputerPlayer(Player):
         'played_top_card' = Card,
         'hand_card' = Card
         })'''
+        def parse_value(card_str : str) -> int:
+            # helper func parsing card value
+            try:
+                parsed = int(card_value)
+            except:
+                parsed = randint(3,5) # assume nonvisible has this value
+            return parsed
         print(f"{self.name} plays a card...")
         table_cards = game_status['player']
         for r, row in enumerate(table_cards):
             for c, card in enumerate(row):
-                if card.value > game_status['hand_card'].value:
+                card_value = parse_value(card)
+                if card_value > game_status['hand_card'].value:
                     print(f"Computer returning {r+1}, {c+1}")
                     return (r + 1, c + 1)
         return ("p", None)
