@@ -15,29 +15,22 @@ class Game():
         for _ in range(1, num_players):
             self.players.append(ComputerPlayer())
         for player in self.players:
+            # Deal 9 cards for each player and place them in shape of 3x3
             table_cards = self.deal_initial_cards()
             for i in range(len(table_cards)//3):
                 player.table_cards.append(table_cards[i*3:(i+1)*3])
-            print('player has been dealt the following cards:')
+            print(f'player {player.name} has been dealt the following cards:')
             print(table_cards)
-            # for card in table_cards:
-            #     print("Card visibility: ", card.visible)
+            # Turn the initial cards of the player    
             turned_cards = player.turn_initial_cards(player.table_cards)
             for row, column in turned_cards:
-                print(player.table_cards[row-1][column-1])
                 player.table_cards[row-1][column-1].visible = True
-            print("After turn: ")
-            print(player.table_cards)
 
         print("Complete init")
 
     def deal_initial_cards(self) -> list:
         '''Deal initial cards to the a player'''
         return [self.deck.draw_from_deck() for _ in range(9)]
-
-    def turn_initial_cards(self, player: Player) -> None:
-        '''Turn the initial cards of the player in the table'''
-        pass
 
     def player_gets_card(self, player: Player) -> None:
         '''Player gets a playing card from either deck'''
@@ -55,15 +48,21 @@ class Game():
 
     def check_full_rows(self, player: Player) -> None:
         '''Check if the player has a full row and remove'''
-        pass
+        for row in player.table_cards:
+            if all([card.visible for card in row]):
+                player.table_cards.remove(row)
 
     def check_game_over(self) -> bool:
         '''Check if the game is over'''
+        for player in self.players:
+            all_visible = all([card.visible for row in player.table_cards for card in row])
+            if all_visible:
+                return True
         return False
 
     def player_score(self, player: Player) -> int:
         '''Calculate the score of the player'''
-        pass
+        return sum([card.value for row in player.table_cards for card in row])
 
     def play_game(self) -> None:
         '''Play the game'''
