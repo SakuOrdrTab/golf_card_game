@@ -16,7 +16,7 @@ class View():
             if iter_players is player:
                 continue
             else:
-                print(f"{player.name}:")
+                print(f"{iter_players.name}:")
                 for row in iter_players.table_cards:
                     self._display_rows(row)
         print("Player's cards: ")
