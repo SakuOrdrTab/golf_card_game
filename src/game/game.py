@@ -2,11 +2,13 @@
 
 from src.card_deck import CardDeck, Card, Suit
 from src.player import HumanPlayer, ComputerPlayer, Player
+from src.view import View
 
 class Game():
     '''Game controller for card game "Golf"'''
     def __init__(self, num_players: int, human_player: bool = True) -> None:
         self.deck = CardDeck()
+        self.view = View(self)
         if num_players < 2:
             raise ValueError('Number of players must be at least 2')
         self.players = []
@@ -33,6 +35,8 @@ class Game():
         self.player_plays_turn(self.players[0])
         print("Gamestatus after:")
         print(f"gamestatus for humanplayer:", self.get_game_status_for_player(self.players[0]))
+        self.view.show_for_player(self.players[0])
+        
 
     def deal_initial_cards(self) -> list:
         '''Deal initial cards to the a player'''
