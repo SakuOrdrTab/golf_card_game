@@ -1,8 +1,7 @@
 '''Card deck class for the golf game'''
 
-from .card import Card, Suit
-
 from random import shuffle
+from .card import Card, Suit
 
 class CardDeck:
     '''Class for a deck of cards'''
@@ -15,8 +14,8 @@ class CardDeck:
         shuffle(self.drawing_deck)
 
     def draw_from_deck(self) -> Card:
-        '''Draw a card from the deck. If the deck is empty, shuffle the played cards and use them as the deck.
-        The card is the first item in the drawing deck list'''
+        '''Draw a card from the deck. If the deck is empty, shuffle the played cards
+        and use them as the deck. The card is the first item in the drawing deck list'''
         # If deck is empty, shuffle the played cards and use them as the deck
         if len(self.drawing_deck) == 0:
             self.drawing_deck = self.played_cards
@@ -30,12 +29,13 @@ class CardDeck:
         self.played_cards.append(self.draw_from_deck())
 
     def draw_from_played(self) -> Card:
-        '''Draw a card from the played cards. The drawn card is the last card in the played cards list'''
+        '''Draw a card from the played cards. The drawn card is the last card in 
+        the played cards list'''
         if len(self.played_cards) == 0:
             raise ValueError('No cards in the played deck')
         card = self.played_cards.pop()
         return card
-    
+
     def add_to_played(self, card: Card) -> None:
         '''Add a card to the played cards'''
         self.played_cards.append(card)
