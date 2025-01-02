@@ -1,13 +1,16 @@
-from .player import Player
+'''Very simple computer player class'''
+
 from random import choice, randint
+from .player import Player
 
 class ComputerPlayer(Player):
+    '''Computer player class, very simple game logics'''
     def get_player_name(self) -> str:
         prefix = choice(["TPU-", "CPU-", "GPU-", "Azure", "Docker"])
         postfix = choice(["cruncher", "grinder", "calculator", "calcinator",
                           "abacus", "tron", "unit", "machina"])
         return prefix+postfix
-    
+
     def get_draw_action(self, game_status : dict) -> str:
         '''game_status = dict({
         'other_players' = [table_cards1, table_cards2 ...],
@@ -17,7 +20,7 @@ class ComputerPlayer(Player):
         print("Do you want to draw from the (d)eck or (p)layed cards? ")
         print(f"{self.name} draws a card...")
         return choice(["p", "d"])
-    
+
     def get_play_action(self, game_status : dict) -> tuple:
         '''game_status = dict({
         'other_players' = [table_cards1, table_cards2 ...],
@@ -28,7 +31,7 @@ class ComputerPlayer(Player):
         def parse_value(card_str : str) -> int:
             # helper func parsing card value
             try:
-                parsed = int(card_value)
+                parsed = int(card_str)
             except:
                 parsed = randint(3,5) # assume nonvisible has this value
             return parsed

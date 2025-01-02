@@ -87,8 +87,9 @@ class Game():
 
     def play_game(self) -> None:
         '''Play the game'''
-        turn = 1
+        turn = 0
         while not self.check_game_over():
+            turn += 1
             print(f'Turn {turn}')
             for player in self.players:
                 print(f"player {player.name}'s class is {player.__class__}")
