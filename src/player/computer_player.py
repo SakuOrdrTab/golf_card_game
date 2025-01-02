@@ -17,8 +17,9 @@ class ComputerPlayer(Player):
         'player' = [table_cards],
         'played_top_card' = Card
         })'''
-        print("Do you want to draw from the (d)eck or (p)layed cards? ")
-        print(f"{self.name} draws a card...")
+        # print("Do you want to draw from the (d)eck or (p)layed cards? ")
+        deck_choice = choice(["p", "d"])
+        print(f"{self.name} draws a card from {'deck' if deck_choice=='d' else 'played cards'}.")
         return choice(["p", "d"])
 
     def get_play_action(self, game_status : dict) -> tuple:
@@ -31,23 +32,26 @@ class ComputerPlayer(Player):
         def parse_value(card_str : str) -> int:
             # helper func parsing card value
             try:
-                parsed = int(card_str)
+                # print("trying to parse:", card_str[1:])
+                parsed = int(card_str[1:])
+                # print("Parsed actual value: ", parsed)
             except:
                 parsed = randint(3,5) # assume nonvisible has this value
             return parsed
-        print(f"{self.name} plays a card...")
-        table_cards = game_status['player']
-        for r, row in enumerate(table_cards):
+        # table_cards = game_status['player']
+        # print(f"computer table_cards: {self.table_cards}")
+        for r, row in enumerate(self.table_cards):
             for c, card in enumerate(row):
-                card_value = parse_value(card)
+                card_value = parse_value(str(card))
                 if card_value > game_status['hand_card'].value:
-                    print(f"Computer returning {r+1}, {c+1}")
+                    print(f"{self.name} playes the card to table at {r+1}. row, {c+1}")
                     return (r + 1, c + 1)
+        print(f"{self.name} plays handcard to the played deck.")
         return ("p", None)
 
     def turn_initial_cards(self, initial_table_cards):
         result = []
         for r, row in enumerate(initial_table_cards):
             result.append(((r + 1), randint(1, len(row))))
-        print("Computer turns initial cards: ", result)
+        print(f"{self.name} turns the initial cards visible.")
         return result
