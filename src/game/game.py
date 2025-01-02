@@ -1,6 +1,6 @@
 '''Game controller for card game "Golf"'''
 
-from src.card_deck import CardDeck, Card, Suit
+from src.card_deck import CardDeck, Card
 from src.player import HumanPlayer, ComputerPlayer, Player
 from src.view import View
 
@@ -23,20 +23,13 @@ class Game():
                 player.table_cards.append(table_cards[i*3:(i+1)*3])
             print(f'player {player.name} has been dealt the following cards:')
             print(table_cards)
-            # Turn the initial cards of the player    
+            # Turn the initial cards of the player
             turned_cards = player.turn_initial_cards(player.table_cards)
             for row, column in turned_cards:
                 player.table_cards[row-1][column-1].visible = True
         # Turn initial card from the drawing deck to the played cards
         self.deck.deal_first_card()
         print("Complete init")
-        print(f"gamestatus for humanplayer:", self.get_game_status_for_player(self.players[0]))
-        print("Playing a turn for human player:")
-        self.player_plays_turn(self.players[0])
-        print("Gamestatus after:")
-        print(f"gamestatus for humanplayer:", self.get_game_status_for_player(self.players[0]))
-        self.view.show_for_player(self.players[0])
-        
 
     def deal_initial_cards(self) -> list:
         '''Deal initial cards to the a player'''
@@ -69,14 +62,15 @@ class Game():
 
     def player_plays_turn(self, player: Player) -> None:
         '''Play a turn of the game'''
-        for player in self.players:
-            hand_card = self.player_gets_card(player)
-            self.player_plays_card(player, hand_card)
+        hand_card = self.player_gets_card(player)
+        if isinstance(player, HumanPlayer):
+            print(f"You got the card: {hand_card}")
+        self.player_plays_card(player, hand_card)
 
     def check_full_rows(self, player: Player) -> None:
-        '''Check if the player has a full row and remove'''
+        '''Check if the player has a full row with the same value and remove'''
         for row in player.table_cards:
-            if all([card.visible for card in row]):
+            if all([card.visible for card in row]) and len(set([card.value for card in row])) == 1:
                 player.table_cards.remove(row)
 
     def check_game_over(self) -> bool:
@@ -93,7 +87,19 @@ class Game():
 
     def play_game(self) -> None:
         '''Play the game'''
-        pass
+        turn = 1
+        while not self.check_game_over():
+            print(f'Turn {turn}')
+            for player in self.players:
+                print(f"player {player.name}'s class is {player.__class__}")
+                if isinstance(player, HumanPlayer):
+                    self.view.show_for_player(player)
+                self.player_plays_turn(player)
+                self.check_full_rows(player)
+        print("Game over")
+        print("Scores:")
+        for player in self.players:
+            print(f'{player.name}: {self.player_score(player)}')
 
     def get_game_status_for_player(self, player : Player, hand_card = None) -> dict:
         '''Getter method for game status from a players perspective'''
@@ -115,7 +121,7 @@ class Game():
                 game_status['other_players'].append(table_cards_list(iter_player))
         if hand_card:
             game_status['hand_card'] = hand_card
-        
+
         if len(self.deck.played_cards) > 0:
             game_status['played_top_card'] = self.deck.get_last_played_card()
         else:
