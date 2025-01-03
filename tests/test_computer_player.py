@@ -36,9 +36,9 @@ def test_get_play_action():
 
     # Mock computer's table cards
     table_cards = [
-        ["♠7", "♣2", "♥9"],
-        ["♦3", "♥4", "♠6"],
-        ["♣5", "♥10", "♦J"],
+        [Card(Suit.CLUBS, x) for x in [2,5,4]],
+        [Card(Suit.DIAMONDS, x) for x in [1,3,4]],
+        [Card(Suit.HEARTS, x) for x in [1,5,2]],
     ]
     player = ComputerPlayer()
     player.table_cards = table_cards

@@ -42,7 +42,7 @@ class ComputerPlayer(Player):
                 parsed = int(card_str[1:])
                 # print("Parsed actual value: ", parsed)
             except:
-                parsed = randint(3,5) # assume nonvisible has this value
+                parsed = randint(4,6) # assume nonvisible has this value
             return parsed
         # table_cards = game_status['player']
         # print(f"computer table_cards: {self.table_cards}")
@@ -56,11 +56,12 @@ class ComputerPlayer(Player):
                 # low relation near 0 is really good while large value (like 12)
                 # is bad
                 card_value_relation = game_status['hand_card'].value / card_value
-                play_to_table_chance = 100 - (card_value_relation*20)
+                play_to_table_chance = 100 - (card_value_relation*50)
                 if randint(0, 100) < play_to_table_chance:
-                    print(f"{self.name} playes the card to table at {r+1}. row, {c+1}")
+                    card.visible = True
+                    # print(f"{self.name} plays the card {card} to table at {r+1}. row, {c+1}")
                     return (r + 1, c + 1)
-        print(f"{self.name} plays handcard to the played deck.")
+        # print(f"{self.name} plays handcard to the played deck. ({game_status['hand_card']})")
         return ("p", None)
 
     def turn_initial_cards(self, initial_table_cards):

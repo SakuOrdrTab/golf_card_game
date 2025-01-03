@@ -45,6 +45,7 @@ class Game():
         elif action == "p": # p is played cards deck
             card = self.deck.draw_from_played()
             card.visible = True
+            print(f"The drawn card from played deck is {card}.")
             return card
         else:
             raise ValueError("Got invalid return from Player.get_draw_action()")
@@ -54,17 +55,23 @@ class Game():
         action = player.get_play_action(self.get_game_status_for_player(player, hand_card))
         # print("Got action: ", action)
         if action[0] == "p": # p means play card away from hand to played deck
+            print(f"{hand_card} is placed in the played deck by {player.name}.")
             self.deck.add_to_played(hand_card)
         else: # should be a tuple (row, column) for play to table
             self.deck.add_to_played(player.table_cards[action[0]-1][action[1]-1])
+            print(f"{player.table_cards[action[0]-1][action[1]-1]} is placed on the played deck from the table by {player.name}")
             player.table_cards[action[0]-1][action[1]-1] = hand_card
+            print(f"{player.name} places {hand_card} on the table at {action[0]-1}. row, {action[1]-1}. place")
 
     def player_plays_turn(self, player: Player) -> None:
         '''Play a turn of the game'''
+        if isinstance(player, HumanPlayer):
+            self.view.show_for_player(player)
         hand_card = self.player_gets_card(player)
         if isinstance(player, HumanPlayer):
             print(f"You got the card: {hand_card}")
         self.player_plays_card(player, hand_card)
+        self.check_full_rows(player)
 
     def check_full_rows(self, player: Player) -> None:
         '''Check if the player has a full row with the same value and remove'''
@@ -90,13 +97,10 @@ class Game():
         turn = 0
         while not self.check_game_over():
             turn += 1
-            print(f'Turn {turn}')
+            print('------------')
+            print(f'Turn {turn}:')
             for player in self.players:
-                # print(f"player {player.name}'s class is {player.__class__}")
-                if isinstance(player, HumanPlayer):
-                    self.view.show_for_player(player)
                 self.player_plays_turn(player)
-                self.check_full_rows(player)
         print(f"Game over in {turn} rounds!")
         print("Scores:")
         for player in self.players:
