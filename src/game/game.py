@@ -12,8 +12,7 @@ class Game():
         if num_players < 2 or num_players > 4:
             raise ValueError('Number of players must be 2-4')
         self.players = []
-        if human_player:
-            self.players.append(HumanPlayer())
+        self.players.append(HumanPlayer()) if human_player else self.players.append(ComputerPlayer())
         for _ in range(1, num_players):
             self.players.append(ComputerPlayer())
         for player in self.players:

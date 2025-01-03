@@ -18,9 +18,15 @@ class ComputerPlayer(Player):
         'played_top_card' = Card
         })'''
         # print("Do you want to draw from the (d)eck or (p)layed cards? ")
-        deck_choice = choice(["p", "d"])
+        played_card_value = game_status['played_top_card']
+        if played_card_value < 3:
+            deck_choice = "p"
+        elif played_card_value < 7:
+            deck_choice = choice(["p", "d"])
+        else:
+            deck_choice = "d"
         print(f"{self.name} draws a card from {'deck' if deck_choice=='d' else 'played cards'}.")
-        return choice(["p", "d"])
+        return deck_choice
 
     def get_play_action(self, game_status : dict) -> tuple:
         '''game_status = dict({
