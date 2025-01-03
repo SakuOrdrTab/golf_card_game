@@ -34,14 +34,14 @@ class HumanPlayer(Player):
             else:
                 try:
                     row, column = [int(x.strip()) for x in answer.split(",")]
-                    print("After split: ", row, column)
+                    # print("After split: ", row, column)
                     return (row, column)
                 except:
                     print("Invalid input")
             print("Please either state 'p' to place the card in your hand")
             print("to the played deck, or give a coordinate separated by ',' to place")
             print("the card in your table and that card goes to the played deck.")
-            print("Coordinates are for example 1,2 where 1 is the first row and 2 is")
+            print("Coordinates are for example 1,2 where 1 is rrrrrrrrrthe first row and 2 is")
             print("the second column")
 
     def turn_initial_cards(self, initial_table_cards):

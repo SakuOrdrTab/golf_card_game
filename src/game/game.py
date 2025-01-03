@@ -95,12 +95,23 @@ class Game():
     def play_game(self) -> None:
         '''Play the game'''
         turn = 0
-        while not self.check_game_over():
+        last_round = False  # Flag to indicate whether the extra round is active
+
+        while not last_round or not self.check_game_over():
             turn += 1
             print('------------')
             print(f'Turn {turn}:')
+
             for player in self.players:
                 self.player_plays_turn(player)
+
+                if not last_round and self.check_game_over():
+                    # Start the extra round once game-over conditions are met
+                    last_round = True
+
+            if last_round and self.check_game_over():
+                break  # Exit the loop after completing the extra round
+
         print(f"Game over in {turn} rounds!")
         print("Scores:")
         for player in self.players:
