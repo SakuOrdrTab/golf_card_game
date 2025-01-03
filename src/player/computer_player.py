@@ -49,7 +49,15 @@ class ComputerPlayer(Player):
         for r, row in enumerate(self.table_cards):
             for c, card in enumerate(row):
                 card_value = parse_value(str(card))
-                if card_value > game_status['hand_card'].value:
+                # don't allow 0
+                if card_value == 0:
+                    card_value = 0.1
+                # get some odds to play to table
+                # low relation near 0 is really good while large value (like 12)
+                # is bad
+                card_value_relation = game_status['hand_card'].value / card_value
+                play_to_table_chance = 100 - (card_value_relation*20)
+                if randint(0, 100) < play_to_table_chance:
                     print(f"{self.name} playes the card to table at {r+1}. row, {c+1}")
                     return (r + 1, c + 1)
         print(f"{self.name} plays handcard to the played deck.")
