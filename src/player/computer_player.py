@@ -18,7 +18,7 @@ class ComputerPlayer(Player):
         'played_top_card' = Card
         })'''
         # print("Do you want to draw from the (d)eck or (p)layed cards? ")
-        played_card_value = game_status['played_top_card']
+        played_card_value = game_status['played_top_card'].value
         if played_card_value < 3:
             deck_choice = "p"
         elif played_card_value < 7:

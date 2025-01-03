@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch
 from src.player.computer_player import ComputerPlayer
+from src.card import Card, Suit
 
 
 def test_get_player_name():
@@ -15,7 +16,7 @@ def test_get_draw_action():
     game_status = {
         "other_players": [],
         "player": [],
-        "played_top_card": None,
+        "played_top_card": Card(Suit.SPADES, 4),
     }
 
     with patch("src.player.computer_player.choice", return_value="d"):
