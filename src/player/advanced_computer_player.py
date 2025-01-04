@@ -47,22 +47,22 @@ class AdvancedComputerPlayer(Player):
         # But we also add a small random factor so it doesn't always pick from 'p'.
         if played_top_value < worst_card_value:
             # Weighted chance to pick from played pile if it's better
-            if random() < 0.95:  # 80% chance if it's strictly better
+            if random() < 0.98: 
                 deck_choice = "p"
             else:
                 deck_choice = "d"
         else:
             # Weighted chance to pick from the deck if it's not obviously better
             # We add a small chance to pick from played anyway
-            if random() < 0.05:
+            if random() < 0.02:
                 deck_choice = "p"
             else:
                 deck_choice = "d"
 
-        print(
-            f"{self.name} draws a card from "
-            f"{'deck' if deck_choice == 'd' else 'played cards'}."
-        )
+        # print(
+        #     f"{self.name} draws a card from "
+        #     f"{'deck' if deck_choice == 'd' else 'played cards'}."
+        # )
         return deck_choice
 
     def get_play_action(self, game_status: dict) -> tuple:
