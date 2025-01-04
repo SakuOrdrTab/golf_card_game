@@ -38,14 +38,14 @@ class AdvancedComputerPlayer(Player):
         # But we also add a small random factor so it doesn't always pick from 'p'.
         if played_top_value < worst_card_value:
             # Weighted chance to pick from played pile if it's better
-            if random() < 0.8:  # 80% chance if it's strictly better
+            if random() < 0.9:  # 80% chance if it's strictly better
                 deck_choice = "p"
             else:
                 deck_choice = "d"
         else:
             # Weighted chance to pick from the deck if it's not obviously better
             # We add a small chance to pick from played anyway
-            if random() < 0.2:
+            if random() < 0.1:
                 deck_choice = "p"
             else:
                 deck_choice = "d"
@@ -92,7 +92,7 @@ class AdvancedComputerPlayer(Player):
                 # We'll add some random chance to not be too predictable.
                 if is_hidden:
                     # random factor & condition that our hand is decently small
-                    if hand_value < 7 and random() < 0.7:
+                    if hand_value < 7 and random() < 0.9:
                         card.visible = True
                         print(
                             f"{self.name} plays the card {hand_card} "
@@ -103,7 +103,7 @@ class AdvancedComputerPlayer(Player):
                     # The card is known
                     # If our hand card is better (lower) by at least 2 or 3 points,
                     # we are fairly likely to replace it. (Add some randomness.)
-                    if (table_value - hand_value) >= 2 and random() < 0.7:
+                    if (table_value - hand_value) >= 2 and random() < 0.9:
                         card.visible = True
                         print(
                             f"{self.name} replaces a known card (val={table_value}) with "
