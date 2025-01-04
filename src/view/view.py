@@ -2,6 +2,12 @@
 
 class View():
     def __init__(self, game) -> None:
+        """Text based view functionality. Does not take part in controls,
+        all that functionality is in the Player calsses
+
+        Args:
+            game (Game): reference to the game model
+        """        
         self._game = game
 
     def _display_rows(self, row : list) -> None:
