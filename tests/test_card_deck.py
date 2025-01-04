@@ -65,3 +65,9 @@ def test_reset_deck_when_empty():
     assert isinstance(card, Card)
     assert len(deck.drawing_deck) == 1
 
+def test_both_draw_from_played():
+    deck = CardDeck()
+    deck.deal_first_card()  # Adds one card to played_cards
+    last_card1 = deck.get_last_played_card()
+    last_card2 = deck.draw_from_played()
+    assert last_card1 == last_card2, "both last card methods return the same Card"

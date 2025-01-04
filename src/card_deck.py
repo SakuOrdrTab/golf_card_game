@@ -4,8 +4,12 @@ from random import shuffle
 from .card import Card, Suit
 
 class CardDeck:
-    '''Class for a deck of cards'''
+    """A Card deck specific to Golf card game. Contains drawing deck and played
+    card deck.
+    """    
     def __init__(self) -> None:
+        """Initializes the deck: builds drawing deck
+        """        
         self.drawing_deck = []
         self.played_cards = []
         for suit in Suit:
@@ -14,8 +18,12 @@ class CardDeck:
         shuffle(self.drawing_deck)
 
     def draw_from_deck(self) -> Card:
-        '''Draw a card from the deck. If the deck is empty, shuffle the played cards
-        and use them as the deck. The card is the first item in the drawing deck list'''
+        """Returns a Card from drawing deck. If deck is empty, the played cards
+        are returned to the drawing deck and shuffled.
+
+        Returns:
+            Card: One card from the drawing deck
+        """        
         # If deck is empty, shuffle the played cards and use them as the deck
         if len(self.drawing_deck) == 0:
             self.drawing_deck = self.played_cards
@@ -25,25 +33,46 @@ class CardDeck:
         return card
 
     def deal_first_card(self) -> None:
-        '''Deal the first card from the deck to the played deck'''
+        """Called by Game() constructor, adds one card to the played deck
+        """        
         self.played_cards.append(self.draw_from_deck())
         self.played_cards[-1].visible = True
 
     def draw_from_played(self) -> Card:
-        '''Draw a card from the played cards. The drawn card is the last card in 
-        the played cards list'''
+        """Returns the last Card from the played deck and removes from
+        played deck.
+
+        Raises:
+            ValueError: No Cards in the played deck, this should not happen
+
+        Returns:
+            Card: Card from played deck
+        """        
         if len(self.played_cards) == 0:
             raise ValueError('No cards in the played deck')
         card = self.played_cards.pop()
         return card
 
     def add_to_played(self, card: Card) -> None:
-        '''Add a card to the played cards'''
+        """Adds a card to the played deck
+
+        Args:
+            card (Card) :
+        """        
         card.visible = True # Ensure card is always visible in played deck
         self.played_cards.append(card)
 
     def get_last_played_card(self) -> Card:
-        '''Get the last played card'''
+        """Getter to get the last played card from the played deck, but NOT
+        remove it. This is just to get the value of the card as it can be seen
+        by players
+
+        Raises:
+            ValueError: Should not happen, no cards in played deck
+
+        Returns:
+            Card: top Card in played deck
+        """        
         if len(self.played_cards) == 0:
             raise ValueError('No cards in the played deck')
         return self.played_cards[-1]
