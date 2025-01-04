@@ -1,4 +1,4 @@
-'''Very simple computer player class'''
+'''Obsolete simple computer player class'''
 
 from random import choice, randint
 from .player import Player
