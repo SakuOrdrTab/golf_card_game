@@ -94,7 +94,7 @@ class Game():
             self.deck.add_to_played(player.table_cards[action[0]-1][action[1]-1])
             print(f"{player.table_cards[action[0]-1][action[1]-1]} is placed on the played deck from the table by {player.name}")
             player.table_cards[action[0]-1][action[1]-1] = hand_card
-            print(f"{player.name} places {hand_card} on the table at {action[0]-1}. row, {action[1]-1}. place")
+            print(f"{player.name} places {hand_card} on the table at {action[0]}. row, {action[1]}. place")
 
     def player_plays_turn(self, player: Player) -> None:
         """Completes the drawing and playing of for one player, which constitutes

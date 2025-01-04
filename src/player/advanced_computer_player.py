@@ -93,26 +93,15 @@ class AdvancedComputerPlayer(Player):
                 if is_hidden:
                     # random factor & condition that our hand is decently small
                     if hand_value < 7 and random() < 0.9:
-                        print(
-                            f"{self.name} plays the card {hand_card} "
-                            f"on a hidden card at row={r+1}, col={c+1}."
-                        )
                         return (r + 1, c + 1)
                 else:
                     # The card is known
                     # If our hand card is better (lower) by at least 2 or 3 points,
                     # we are fairly likely to replace it. (Add some randomness.)
                     if (table_value - hand_value) >= 2 and random() < 0.9:
-                        print(
-                            f"{self.name} replaces a known card (val={table_value}) with "
-                            f"{hand_card} at row={r+1}, col={c+1}."
-                        )
                         return (r + 1, c + 1)
 
         # If we haven't found any good replacements, discard the card to the pile
-        print(
-            f"{self.name} discards the card {hand_card} to the played deck."
-        )
         return ("p", None)
 
     def turn_initial_cards(self, initial_table_cards):
