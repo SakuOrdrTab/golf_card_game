@@ -7,7 +7,7 @@ import pandas as pd
 
 if __name__ == '__main__':
     results = pd.DataFrame(columns=['winner', 'turns', 'advanced'])
-    for i in range(1000):
+    for i in range(5000):
         game = Game(2, human_player=False)
         turns, score_dict, winner = game.play_game()
         advanced = winner.startswith("Advanced")

@@ -35,7 +35,7 @@ class AdvancedComputerPlayer(Player):
             own_pair_values = self._pairs_in_own_tablecards(game_status['player'])
             flat_pair_values = [value for sublist in own_pair_values for value in sublist]  # Flatten the list
             if str(played_top_value) in flat_pair_values:
-                print("HOPING TO SEE A TRIPLE!")
+                # print("HOPING TO SEE A TRIPLE!")
                 return "p"
 
         # Get worst card value from the table (i.e. the largest or unknown).
@@ -47,14 +47,14 @@ class AdvancedComputerPlayer(Player):
         # But we also add a small random factor so it doesn't always pick from 'p'.
         if played_top_value < worst_card_value:
             # Weighted chance to pick from played pile if it's better
-            if random() < 0.9:  # 80% chance if it's strictly better
+            if random() < 0.95:  # 80% chance if it's strictly better
                 deck_choice = "p"
             else:
                 deck_choice = "d"
         else:
             # Weighted chance to pick from the deck if it's not obviously better
             # We add a small chance to pick from played anyway
-            if random() < 0.1:
+            if random() < 0.05:
                 deck_choice = "p"
             else:
                 deck_choice = "d"
@@ -119,7 +119,7 @@ class AdvancedComputerPlayer(Player):
                 # We'll add some random chance to not be too predictable.
                 if is_hidden:
                     # random factor & condition that our hand is decently small
-                    if hand_value < 7 and random() < 0.9:
+                    if hand_value < 6 and random() < 0.9:
                         return (r + 1, c + 1)
                 else:
                     # The card is known
