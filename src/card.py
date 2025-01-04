@@ -10,8 +10,18 @@ class Suit(Enum):
     CLUBS = '\U00002667'
 
 class Card:
-    '''Class for a card in the Gulf card game'''
-    def __init__(self, suit: Suit, value: int):
+    """class for card in the game of Golf. has a suite and value, can be visible or not
+    """    
+    def __init__(self, suit: Suit, value: int) -> None:
+        """Creates a card of enumerable Suit and a value. Default visibility is False
+
+        Args:
+            suit (Suit): SPADES, HEARTS, DIAMONDS, CLUBS
+            value (int): 0 to 12 in Golf
+
+        Raises:
+            ValueError: Invalid value for card
+        """
         self.suit = suit
         if value < 0 or value > 12:
             raise ValueError('Value must be between 0 and 12')
