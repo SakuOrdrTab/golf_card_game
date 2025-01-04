@@ -125,7 +125,7 @@ class AdvancedComputerPlayer(Player):
                     # The card is known
                     # If our hand card is better (lower) by at least 2 or 3 points,
                     # we are fairly likely to replace it. (Add some randomness.)
-                    if (table_value - hand_value) >= 2 and random() < 0.9:
+                    if (table_value - hand_value) >= 3 and random() < 0.9:
                         return (r + 1, c + 1)
 
         # If we haven't found any good replacements, discard the card to the pile
