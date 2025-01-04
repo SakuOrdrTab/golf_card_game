@@ -1,12 +1,5 @@
 '''Test card.py '''
 
-# Debugging for not able to import
-# import sys
-# import os
-
-# print("sys.path:", sys.path)
-# print("Current working directory:", os.getcwd())
-
 import pytest
 from src.card import Card, Suit
 

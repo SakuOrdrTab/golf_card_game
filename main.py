@@ -1,6 +1,5 @@
 '''Entry for the Golf card game'''
 
-# from src#  import Card, CardDeck, Suit
 from src.game import Game
 
 import numpy as np

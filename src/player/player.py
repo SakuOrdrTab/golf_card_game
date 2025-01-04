@@ -1,7 +1,6 @@
 '''Abstract player class for parenting different classes of players'''
 
 from abc import ABC, abstractmethod
-# from src.game import Game
 
 class Player(ABC):
     def __init__(self) -> None:

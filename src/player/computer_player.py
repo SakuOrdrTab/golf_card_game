@@ -17,7 +17,6 @@ class ComputerPlayer(Player):
         'player' = [table_cards],
         'played_top_card' = Card
         })'''
-        # print("Do you want to draw from the (d)eck or (p)layed cards? ")
         played_card_value = game_status['played_top_card'].value
         if played_card_value < 3:
             deck_choice = "p"
@@ -38,14 +37,10 @@ class ComputerPlayer(Player):
         def parse_value(card_str : str) -> int:
             # helper func parsing card value
             try:
-                # print("trying to parse:", card_str[1:])
                 parsed = int(card_str[1:])
-                # print("Parsed actual value: ", parsed)
             except:
                 parsed = randint(4,6) # assume nonvisible has this value
             return parsed
-        # table_cards = game_status['player']
-        # print(f"computer table_cards: {self.table_cards}")
         for r, row in enumerate(self.table_cards):
             for c, card in enumerate(row):
                 card_value = parse_value(str(card))
@@ -59,9 +54,7 @@ class ComputerPlayer(Player):
                 play_to_table_chance = 100 - (card_value_relation*50)
                 if randint(0, 100) < play_to_table_chance:
                     card.visible = True
-                    # print(f"{self.name} plays the card {card} to table at {r+1}. row, {c+1}")
                     return (r + 1, c + 1)
-        # print(f"{self.name} plays handcard to the played deck. ({game_status['hand_card']})")
         return ("p", None)
 
     def turn_initial_cards(self, initial_table_cards):

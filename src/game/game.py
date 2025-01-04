@@ -20,9 +20,6 @@ class Game():
             table_cards = self.deal_initial_cards()
             for i in range(len(table_cards)//3):
                 player.table_cards.append(table_cards[i*3:(i+1)*3])
-            # print(f'player {player.name} has been dealt the following cards:')
-            # print(table_cards)
-            # Turn the initial cards of the player
             turned_cards = player.turn_initial_cards(player.table_cards)
             for row, column in turned_cards:
                 player.table_cards[row-1][column-1].visible = True
@@ -37,7 +34,6 @@ class Game():
     def player_gets_card(self, player: Player) -> Card:
         '''Player gets a playing card from either deck'''
         action = player.get_draw_action(self.get_game_status_for_player(player))
-        # print("Got action: ", action)
         if action == "d": # d is drawing deck
             card = self.deck.draw_from_deck()
             card.visible = True
@@ -53,7 +49,6 @@ class Game():
     def player_plays_card(self, player: Player, hand_card : Card) -> None:
         '''Player plays a card from their hand'''
         action = player.get_play_action(self.get_game_status_for_player(player, hand_card))
-        # print("Got action: ", action)
         if action[0] == "p": # p means play card away from hand to played deck
             print(f"{hand_card} is placed in the played deck by {player.name}.")
             self.deck.add_to_played(hand_card)
@@ -139,7 +134,6 @@ class Game():
         game_status['other_players'] = []
         for iter_player in self.players:
             if iter_player is player:
-                # print("Not adding the actual player")
                 continue
             else:
                 game_status['other_players'].append(table_cards_list(iter_player))
