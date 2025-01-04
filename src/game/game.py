@@ -1,5 +1,7 @@
 '''Game controller for card game "Golf"'''
 
+from random import shuffle
+
 from src.card_deck import CardDeck, Card
 from src.player import HumanPlayer, ComputerPlayer, AdvancedComputerPlayer, Player
 from src.view import View
@@ -40,6 +42,8 @@ class Game():
                 player.table_cards[row-1][column-1].visible = True
         # Turn initial card from the drawing deck to the played cards
         self.deck.deal_first_card()
+        shuffle(self.players)
+        print(f"Players shuffled, player {self.players[0].name} starts...")
         print("Complete init")
 
     def deal_initial_cards(self) -> list:
