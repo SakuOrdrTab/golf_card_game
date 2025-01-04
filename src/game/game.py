@@ -1,7 +1,7 @@
 '''Game controller for card game "Golf"'''
 
 from src.card_deck import CardDeck, Card
-from src.player import HumanPlayer, ComputerPlayer, Player
+from src.player import HumanPlayer, ComputerPlayer, AdvancedComputerPlayer, Player
 from src.view import View
 
 class Game():
@@ -14,7 +14,7 @@ class Game():
         self.players = []
         self.players.append(HumanPlayer()) if human_player else self.players.append(ComputerPlayer())
         for _ in range(1, num_players):
-            self.players.append(ComputerPlayer())
+            self.players.append(AdvancedComputerPlayer())
         for player in self.players:
             # Deal 9 cards for each player and place them in shape of 3x3
             table_cards = self.deal_initial_cards()
@@ -92,8 +92,9 @@ class Game():
         '''Calculate the score of the player'''
         return sum([card.value for row in player.table_cards for card in row])
 
-    def play_game(self) -> None:
-        '''Play the game'''
+    def play_game(self) -> tuple:
+        '''Play the game
+        returns: (turns played, scores dict, winner_name)'''
         turn = 0
         last_round = False  # Flag to indicate whether the extra round is active
 
@@ -114,8 +115,15 @@ class Game():
 
         print(f"Game over in {turn} rounds!")
         print("Scores:")
+        scores = {}
         for player in self.players:
             print(f'{player.name}: {self.player_score(player)}')
+            scores[player.name] = self.player_score(player)
+        winner_name = list(scores.keys())[0]
+        for name in scores.keys():
+            if scores[name] < scores[winner_name]:
+                winner_name = name
+        return (turn, scores, winner_name)
 
     def get_game_status_for_player(self, player : Player, hand_card = None) -> dict:
         '''Getter method for game status from a players perspective'''
