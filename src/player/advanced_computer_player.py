@@ -1,6 +1,7 @@
 '''Advanced computer player class'''
 
 from random import choice, randint, random
+from collections import Counter
 from .player import Player
 
 class AdvancedComputerPlayer(Player):
@@ -15,7 +16,7 @@ class AdvancedComputerPlayer(Player):
             "cruncher", "grinder", "calculator", "mainframe", "brain", "totalizer",
             "calcinator", "abacus", "tron", "unit", "machina", "automaton", "system"
         ])
-        return "Advanced " + prefix + postfix
+        return f"Advanced {prefix}{postfix} version {str(randint(1,4))}.{str(randint(1,20))}"
 
     def get_draw_action(self, game_status: dict) -> str:
         """
@@ -28,6 +29,14 @@ class AdvancedComputerPlayer(Player):
           - We also add some random factor to keep it from being fully predictable.
         """
         played_top_value = game_status['played_top_card'].value
+
+        # See if there are own pairs already and if so, draw from played
+        if self._pair_in_own_tablecards(game_status['player']):
+            own_pair_values = self._pairs_in_own_tablecards(game_status['player'])
+            flat_pair_values = [value for sublist in own_pair_values for value in sublist]  # Flatten the list
+            if str(played_top_value) in flat_pair_values:
+                print("HOPING TO SEE A TRIPLE!")
+                return "p"
 
         # Get worst card value from the table (i.e. the largest or unknown).
         worst_card_value = self._get_worst_table_card_value(game_status['player'])
@@ -70,6 +79,24 @@ class AdvancedComputerPlayer(Player):
         hand_card = game_status['hand_card']
         hand_value = hand_card.value
 
+        # If there are pairs in own cards, place the card there
+        if self._pair_in_own_tablecards:
+            for row_index, row in enumerate(game_status['player']):
+                # Extract card values (ignore suits)
+                card_values = list(map(lambda x: self._parse_value(x), row))
+                
+                # Check if there are duplicates of the hand_value
+                if Counter(card_values)[hand_value] > 1:
+                    # Find the index where the card value is NOT equal to hand_value
+                    non_matching_index = [col for col, card in enumerate(card_values) if card != hand_value]
+                    
+                    # If exactly one card does not match, process it
+                    if len(non_matching_index) == 1:
+                        non_matching_index = non_matching_index[0]  # Extract the single index
+                        # print("PLACING A SMART ROW!")
+                        # print(row_index, non_matching_index)
+                        return (row_index + 1, non_matching_index + 1)
+                    
         # We'll loop over the table cards in row-major order
         # to find a suitable spot to play. 
         # The first "good enough" spot we find, we play.
@@ -146,3 +173,36 @@ class AdvancedComputerPlayer(Player):
         except ValueError:
             # If anything goes wrong, return ~6
             return 6
+        
+    def _pair_in_own_tablecards(self, table_cards : list) -> bool:
+        # discard suit:
+        iterable = []
+        for row in table_cards:
+            new_row = []
+            for column in row:
+                new_row.append(column[1:])
+            iterable.append(new_row)
+
+        for row in iterable:
+            strs = [item for item in row if item != "X"]
+            counts = Counter(strs)
+            if [item for item, count in counts.items() if count > 1] != []:
+                return True
+        return False
+    
+    def _pairs_in_others_tablecards(self, others : list) -> list:
+        res = []
+        for player in others:
+            for row in player:
+                strs = [item[1:] for item in row if item != "XX"]
+                counts = Counter(strs)
+                res.append([item for item, count in counts.items() if count > 1])
+        return res
+
+    def _pairs_in_own_tablecards(self, table_cards : list) -> list:
+        res = []
+        for row in table_cards:
+            strs = [item[1:] for item in row if item != "XX"]
+            counts = Counter(strs)
+            res.append([item for item, count in counts.items() if count > 1])
+        return res
