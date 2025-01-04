@@ -115,3 +115,66 @@ def test_game_status_no_hand_card():
     # Test without a hand card
     game_status = game.get_game_status_for_player(player1)
     assert "hand_card" not in game_status, "Hand card should not be included if not provided"
+
+def test_play_game_completes_properly():
+    """Test that play_game completes once all conditions are met."""
+    game = Game(num_players=2, human_player=False)
+    for player in game.players:
+        player.table_cards = [[Card(Suit.CLUBS, i) for i in range(1, 4)] for _ in range(3)]
+        for row in player.table_cards:
+            for card in row:
+                card.visible = True  # All cards visible to simulate game-end condition
+
+    result = game.play_game()
+    assert result[0] > 0, "Game should play at least one turn"
+    assert result[2] in result[1], "Winner's name should be in the scores"
+
+def test_play_game_tied_scores():
+    """Test play_game handles tied scores correctly."""
+    game = Game(num_players=2, human_player=False)
+    for player in game.players:
+        player.table_cards = [[Card(Suit.SPADES, 1) for _ in range(3)] for _ in range(3)]
+        for row in player.table_cards:
+            for card in row:
+                card.visible = True  # All cards visible to simulate game-end condition
+
+    result = game.play_game()
+    assert result[0] > 0, "Game should play at least one turn"
+    assert len(result[1]) == 2, "Scores should include all players"
+    assert list(result[1].values()).count(min(result[1].values())) > 1, "Scores should be tied"
+
+def test_play_game_max_players():
+    """Test play_game works with the maximum number of players."""
+    game = Game(num_players=4, human_player=False)
+    for player in game.players:
+        player.table_cards = [[Card(Suit.DIAMONDS, i) for i in range(1, 4)] for _ in range(3)]
+        for row in player.table_cards:
+            for card in row:
+                card.visible = True  # All cards visible to simulate game-end condition
+
+    result = game.play_game()
+    assert result[0] > 0, "Game should play at least one turn"
+    assert len(result[1]) == 4, "Scores should include all players"
+    assert result[2] in result[1], "Winner's name should be in the scores"
+
+def test_play_game_min_players():
+    """Test play_game works with the minimum number of players."""
+    game = Game(num_players=2, human_player=False)
+    for player in game.players:
+        player.table_cards = [[Card(Suit.HEARTS, i) for i in range(1, 4)] for _ in range(3)]
+        for row in player.table_cards:
+            for card in row:
+                card.visible = True  # All cards visible to simulate game-end condition
+
+    result = game.play_game()
+    assert result[0] > 0, "Game should play at least one turn"
+    assert len(result[1]) == 2, "Scores should include all players"
+    assert result[2] in result[1], "Winner's name should be in the scores"
+
+def test_play_game_returns_tuple():
+    """Test that play_game returns a tuple."""
+    game = Game(num_players=2, human_player=False)
+    
+    result = game.play_game()
+
+    assert isinstance(result, tuple), "play_game should return a tuple"
