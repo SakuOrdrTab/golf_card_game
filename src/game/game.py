@@ -5,8 +5,23 @@ from src.player import HumanPlayer, ComputerPlayer, AdvancedComputerPlayer, Play
 from src.view import View
 
 class Game():
-    '''Game controller for card game "Golf"'''
+    """class for the game logic or 'controller' of card game 'Golf'
+
+    Raises:
+        ValueError: Number of players must be 2-4
+        ValueError: Invalid return of internal game logic at player action
+    """
     def __init__(self, num_players: int, human_player: bool = True) -> None:
+        """instantiates a golf card game. Sets players, turns initial cards
+        and deals the first card to the table
+
+        Args:
+            num_players (int): number of players, 2-4
+            human_player (bool, optional): Check to True to add a human player. Defaults to True.
+
+        Raises:
+            ValueError: Invalid number of players
+        """        
         self.deck = CardDeck()
         self.view = View(self)
         if num_players < 2 or num_players > 4:
@@ -28,11 +43,27 @@ class Game():
         print("Complete init")
 
     def deal_initial_cards(self) -> list:
-        '''Deal initial cards to the a player'''
+        """Deals initial 9 cards from the drawing deck
+
+        Returns:
+            list: nine Card instances in a list
+        """
         return [self.deck.draw_from_deck() for _ in range(9)]
 
     def player_gets_card(self, player: Player) -> Card:
-        '''Player gets a playing card from either deck'''
+        """Passes control to corresponding controller, a computer or human
+        player. Gets the result of whether it is wanted to draw from drawing
+        deck or the played cards deck
+
+        Args:
+            player (Player): Human or other Player class instance
+
+        Raises:
+            ValueError: invalid response from the controller
+
+        Returns:
+            Card: The drawn card from either deck
+        """
         action = player.get_draw_action(self.get_game_status_for_player(player))
         if action == "d": # d is drawing deck
             card = self.deck.draw_from_deck()
@@ -47,7 +78,14 @@ class Game():
             raise ValueError("Got invalid return from Player.get_draw_action()")
 
     def player_plays_card(self, player: Player, hand_card : Card) -> None:
-        '''Player plays a card from their hand'''
+        """A player plays the card from their hand, whether human or other Player.
+        The action is gotten from the actual controller in the Player class. Card is
+        played either to the table or the played deck.
+
+        Args:
+            player (Player): Human or other Player
+            hand_card (Card): the current hand card to be played
+        """        
         action = player.get_play_action(self.get_game_status_for_player(player, hand_card))
         if action[0] == "p": # p means play card away from hand to played deck
             print(f"{hand_card} is placed in the played deck by {player.name}.")
@@ -59,7 +97,13 @@ class Game():
             print(f"{player.name} places {hand_card} on the table at {action[0]-1}. row, {action[1]-1}. place")
 
     def player_plays_turn(self, player: Player) -> None:
-        '''Play a turn of the game'''
+        """Completes the drawing and playing of for one player, which constitutes
+        a complete turn for that player. Also, if full rows are present,
+        they are removed.
+
+        Args:
+            player (Player): human or other Player
+        """        
         if isinstance(player, HumanPlayer):
             self.view.show_for_player(player)
         hand_card = self.player_gets_card(player)
@@ -69,14 +113,22 @@ class Game():
         self.check_full_rows(player)
 
     def check_full_rows(self, player: Player) -> None:
-        '''Check if the player has a full row with the same value and remove'''
+        """Checks if full rows are present and removes them if so
+
+        Args:
+            player (Player): Player whose turn it is
+        """
         for row in player.table_cards:
             if all([card.visible for card in row]) and len(set([card.value for card in row])) == 1:
                 print(f"{player.name}'s row of cards is complete and is removed.\n{row}")
                 player.table_cards.remove(row)
 
     def check_game_over(self) -> bool:
-        '''Check if the game is over'''
+        """Checks if game over condition is reached. (All cards of one player visible on table)
+
+        Returns:
+            bool: Game over conditions met
+        """        
         for player in self.players:
             all_visible = all([card.visible for row in player.table_cards for card in row])
             if all_visible:
@@ -84,12 +136,24 @@ class Game():
         return False
 
     def player_score(self, player: Player) -> int:
-        '''Calculate the score of the player'''
+        """Returns the player's score of card values in the table
+
+        Args:
+            player (Player): human or other player
+
+        Returns:
+            int: Sum of table Card values
+        """
         return sum([card.value for row in player.table_cards for card in row])
 
     def play_game(self) -> tuple:
-        '''Play the game
-        returns: (turns played, scores dict, winner_name)'''
+        """Runner for the golf game. Runs the turns until victory conditions are met
+        Returns some data that might be needed for reinforcement learning or other
+        purposes.
+
+        Returns:
+            tuple: (turns played, scores dict, winner_name)
+        """
         turn = 0
         last_round = False  # Flag to indicate whether the extra round is active
 
@@ -121,7 +185,24 @@ class Game():
         return (turn, scores, winner_name)
 
     def get_game_status_for_player(self, player : Player, hand_card = None) -> dict:
-        '''Getter method for game status from a players perspective'''
+        """Getter method for the game status. This can and will be passed to each player,
+        so player can assess the situation for the right action. The game status does not
+        reveal any information that is not available through the game's rules (nonvisible
+        cards, deck, etc)
+
+        Args:
+            player (Player): human or other player, whose perspective is current
+            hand_card (Card, optional): If the purpose is not to draw but to actually
+            play a card, this should have the hand card. Defaults to None.
+
+        Returns:
+            dict: _game_status = dict({
+                                'other_players' = [table_cards1, table_cards2 ...],
+                                'player' = [table_cards],
+                                'played_top_card' = Card,
+                                <'hand_card' = Card>
+                                })
+        """        
         def table_cards_list(pl : Player) -> list:
             # helper function for getting only visible information to pass
             res = []

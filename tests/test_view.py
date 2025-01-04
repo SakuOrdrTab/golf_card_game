@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import MagicMock
 from src.view import View
 from src.card_deck import Card, Suit
-from src.player.computer_player import ComputerPlayer
 from src.game import Game
 
 
