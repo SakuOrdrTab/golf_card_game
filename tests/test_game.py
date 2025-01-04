@@ -49,7 +49,7 @@ def test_game_status_player_own_cards():
     game.players = [player1]
 
     game_status = game.get_game_status_for_player(player1)
-    assert game_status["player"] == ['♡1', '♧2', '♢3', '♤4'],\
+    assert game_status["player"] == [['♡1', '♧2'], ['♢3', '♤4']],\
           "Player's own visible cards should match"
 
 
@@ -70,7 +70,7 @@ def test_game_status_other_players_cards():
 
     game_status = game.get_game_status_for_player(player1)
     assert len(game_status["other_players"]) == 1
-    assert game_status["other_players"][0] == ['♧5', '♢6', '♤7', '♡8'], \
+    assert game_status["other_players"][0] == [['♧5', '♢6'], ['♤7', '♡8']], \
     "Other players' visible cards should match"
 
 

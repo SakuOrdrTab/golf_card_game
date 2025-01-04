@@ -207,8 +207,7 @@ class Game():
             # helper function for getting only visible information to pass
             res = []
             for row in pl.table_cards:
-                for card in row:
-                    res.append(str(card))
+                res.append(list(map(lambda x: str(x), row)))
             return res
         game_status = {}
         game_status['player'] = list(table_cards_list(player))

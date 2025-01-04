@@ -1,19 +1,19 @@
-'''Very simple computer player class'''
+'''Advanced computer player class'''
 
 from random import choice, randint, random
 from .player import Player
 
 class AdvancedComputerPlayer(Player):
     """
-    An improved (but still relatively simple) computer player.
+    An improved computer player.
     Incorporates slightly better heuristics and randomization.
     """
 
     def get_player_name(self) -> str:
-        prefix = choice(["TPU-", "CPU-", "GPU-", "Azure", "Docker"])
+        prefix = choice(["TPU-", "CPU-", "GPU-", "Azure", "Docker", "Cloud", "Hivemind"])
         postfix = choice([
-            "cruncher", "grinder", "calculator", 
-            "calcinator", "abacus", "tron", "unit", "machina"
+            "cruncher", "grinder", "calculator", "mainframe", "brain", "totalizer",
+            "calcinator", "abacus", "tron", "unit", "machina", "automaton", "system"
         ])
         return "Advanced " + prefix + postfix
 
@@ -30,7 +30,7 @@ class AdvancedComputerPlayer(Player):
         played_top_value = game_status['played_top_card'].value
 
         # Get worst card value from the table (i.e. the largest or unknown).
-        worst_card_value = self._get_worst_table_card_value()
+        worst_card_value = self._get_worst_table_card_value(game_status['player'])
 
         # If the played top card is significantly better than the worst card on the table,
         # we are more likely to pick it.
@@ -73,15 +73,15 @@ class AdvancedComputerPlayer(Player):
         # We'll loop over the table cards in row-major order
         # to find a suitable spot to play. 
         # The first "good enough" spot we find, we play.
-        for r, row in enumerate(self.table_cards):
-            for c, card in enumerate(row):
-                table_value = self._parse_value(card)
+        for r, row in enumerate(game_status['player']):
+            for c, card_str in enumerate(row):
+                table_value = self._parse_value(card_str)
 
                 # If the card is hidden (unknown), we approximate 
                 # it with some average or mid-range value.
                 # parse_value above handles that, but let's keep it in a var
                 # to do some logic around it.
-                is_hidden = (str(card).startswith("XX") or not card.visible)
+                is_hidden = card_str.startswith("X")
 
                 # A simple logic:
                 #   - If hidden, we consider that it's "probably" around 6.
@@ -93,7 +93,6 @@ class AdvancedComputerPlayer(Player):
                 if is_hidden:
                     # random factor & condition that our hand is decently small
                     if hand_value < 7 and random() < 0.9:
-                        card.visible = True
                         print(
                             f"{self.name} plays the card {hand_card} "
                             f"on a hidden card at row={r+1}, col={c+1}."
@@ -104,7 +103,6 @@ class AdvancedComputerPlayer(Player):
                     # If our hand card is better (lower) by at least 2 or 3 points,
                     # we are fairly likely to replace it. (Add some randomness.)
                     if (table_value - hand_value) >= 2 and random() < 0.9:
-                        card.visible = True
                         print(
                             f"{self.name} replaces a known card (val={table_value}) with "
                             f"{hand_card} at row={r+1}, col={c+1}."
@@ -132,26 +130,25 @@ class AdvancedComputerPlayer(Player):
         print(f"{self.name} turns the initial cards visible.")
         return result
 
-    def _get_worst_table_card_value(self) -> int:
+    def _get_worst_table_card_value(self, table_cards) -> int:
         """
         Helper to find the worst card value (highest) on our table.
         For unknown (hidden) cards, assume a mid-range (e.g., 6).
         """
         worst_value = -1
-        for row in self.table_cards:
-            for card in row:
-                val = self._parse_value(card)
+        for row in table_cards:
+            for card_str in row:
+                val = self._parse_value(card_str)
                 if val > worst_value:
                     worst_value = val
         return worst_value
 
-    def _parse_value(self, card) -> int:
+    def _parse_value(self, card_str) -> int:
         """
         Safely parse card values.
         If the card is unknown (like 'XX'), we treat it as ~6.
         You could adjust that to a random guess in [4..7], or something else.
         """
-        card_str = str(card)
         # If it's hidden or we can't parse it, approximate
         if card_str.startswith("XX"):
             return 6  # assume average card
