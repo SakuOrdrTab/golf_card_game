@@ -143,7 +143,7 @@ class AdvancedComputerPlayer(Player):
             # Flip exactly 1 card from each row
             flip_col = randint(1, len(row))
             result.append((r + 1, flip_col))
-        print(f"{self.name} turns the initial cards visible.")
+        # print(f"{self.name} turns the initial cards visible.")
         return result
 
     def _get_worst_table_card_value(self, table_cards) -> int:

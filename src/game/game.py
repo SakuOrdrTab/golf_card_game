@@ -13,7 +13,7 @@ class Game():
         ValueError: Number of players must be 2-4
         ValueError: Invalid return of internal game logic at player action
     """
-    def __init__(self, num_players: int, human_player: bool = True) -> None:
+    def __init__(self, num_players: int, human_player: bool = True, silent_mode: bool = False) -> None:
         """instantiates a golf card game. Sets players, turns initial cards
         and deals the first card to the table
 
@@ -25,7 +25,8 @@ class Game():
             ValueError: Invalid number of players
         """        
         self.deck = CardDeck()
-        self.view = View(self)
+        self._silent_mode = silent_mode
+        self.view = View(self, silent_mode=self._silent_mode)
         if num_players < 2 or num_players > 4:
             raise ValueError('Number of players must be 2-4')
         self.players = []
@@ -38,13 +39,15 @@ class Game():
             for i in range(len(table_cards)//3):
                 player.table_cards.append(table_cards[i*3:(i+1)*3])
             turned_cards = player.turn_initial_cards(player.table_cards)
+            if not isinstance(player, HumanPlayer):
+                self.view.output(f"{player.name} turns the initial cards visible.")
             for row, column in turned_cards:
                 player.table_cards[row-1][column-1].visible = True
         # Turn initial card from the drawing deck to the played cards
         self.deck.deal_first_card()
         shuffle(self.players)
-        print(f"Players shuffled, player {self.players[0].name} starts...")
-        print("Complete init")
+        self.view.output(f"Players shuffled, player {self.players[0].name} starts...")
+        self.view.output("Complete init")
 
     def deal_initial_cards(self) -> list:
         """Deals initial 9 cards from the drawing deck
@@ -72,12 +75,12 @@ class Game():
         if action == "d": # d is drawing deck
             card = self.deck.draw_from_deck()
             card.visible = True
-            print(f"{player.name} draws from the drawing deck.")
+            self.view.output(f"{player.name} draws from the drawing deck.")
             return card
         elif action == "p": # p is played cards deck
             card = self.deck.draw_from_played()
             card.visible = True
-            print(f"{player.name} draws {card} from the played deck.")
+            self.view.output(f"{player.name} draws {card} from the played deck.")
             return card
         else:
             raise ValueError("Got invalid return from Player.get_draw_action()")
@@ -93,14 +96,14 @@ class Game():
         """        
         action = player.get_play_action(self.get_game_status_for_player(player, hand_card))
         if action[0] == "p": # p means play card away from hand to played deck
-            print(f"{hand_card} is placed in the played deck by {player.name}.")
+            self.view.output(f"{hand_card} is placed in the played deck by {player.name}.")
             self.deck.add_to_played(hand_card)
         else: # should be a tuple (row, column) for play to table
             self.deck.add_to_played(player.table_cards[action[0]-1][action[1]-1])
             print_later = f"{player.table_cards[action[0]-1][action[1]-1]} is placed on the played deck from the table by {player.name}"
             player.table_cards[action[0]-1][action[1]-1] = hand_card
-            print(f"{player.name} puts {hand_card} on the table at {action[0]}. row, {action[1]}. place")
-            print(print_later)
+            self.view.output(f"{player.name} puts {hand_card} on the table at {action[0]}. row, {action[1]}. place")
+            self.view.output(print_later)
 
     def player_plays_turn(self, player: Player) -> None:
         """Completes the drawing and playing of for one player, which constitutes
@@ -114,7 +117,7 @@ class Game():
             self.view.show_for_player(player)
         hand_card = self.player_gets_card(player)
         if isinstance(player, HumanPlayer):
-            print(f"You got the card: {hand_card}")
+            self.view.output(f"You got the card: {hand_card}")
         self.player_plays_card(player, hand_card)
         self.check_full_rows(player)
 
@@ -126,7 +129,7 @@ class Game():
         """
         for row in player.table_cards:
             if all([card.visible for card in row]) and len(set([card.value for card in row])) == 1:
-                print(f"{player.name}'s row of cards is complete and is removed.\n{row}")
+                self.view.output(f"{player.name}'s row of cards is complete and is removed.\n{row}")
                 player.table_cards.remove(row)
 
     def check_game_over(self) -> bool:
@@ -165,8 +168,8 @@ class Game():
 
         while not last_round or not self.check_game_over():
             turn += 1
-            print('------------')
-            print(f'Turn {turn}:')
+            self.view.output('------------')
+            self.view.output(f'Turn {turn}:')
 
             for player in self.players:
                 self.player_plays_turn(player)
