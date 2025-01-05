@@ -206,3 +206,9 @@ class AdvancedComputerPlayer(Player):
             counts = Counter(strs)
             res.append([item for item, count in counts.items() if count > 1])
         return res
+    
+    def inform_game_result(self, win: bool, relative_score: int) -> None:
+        """
+        Inform the player about the game result.
+        """
+        return None

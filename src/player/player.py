@@ -64,3 +64,13 @@ class Player(ABC):
             turned
         """        
         pass
+    
+    @abstractmethod
+    def inform_game_result(self, win : bool, relative_score : int) -> None:
+        """Informs the player about the game result
+
+        Args:
+            win (bool): True if the player wins the game
+            relative_score (int): relative score of the player
+        """        
+        pass

@@ -91,3 +91,17 @@ class HumanPlayer(Player):
                     print("Try again...")
             result.append((r + 1, ans))
         return result
+    
+    def inform_game_result(self, win : bool, relative_score : int) -> None:
+        """Informs the player about the game result
+
+        Args:
+            win (bool): True if the player won
+            relative_score (int): the score difference between the player
+            and the winner
+        """        
+        if win:
+            print("Congratulations! You won!")
+        else:
+            print(f"Sorry, you lost by {-relative_score} points.")
+        print("Thank you for playing!")

@@ -14,6 +14,9 @@ class DummyPlayer(Player):
 
     def turn_initial_cards(self, initial_table_cards: list) -> list:
         return initial_table_cards
+    
+    def inform_game_result(self, win, relative_score):
+        return None
 
 def test_player_initialization():
     """Test that a concrete subclass of Player initializes correctly."""

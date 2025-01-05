@@ -161,3 +161,9 @@ class ComputerPlayer(Player):
         except ValueError:
             # If anything goes wrong, return ~6
             return 6
+        
+    def inform_game_result(self, win: bool, relative_score: int) -> None:
+        """
+        Inform the player about the game result.
+        """
+        return None
