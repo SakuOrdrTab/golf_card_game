@@ -36,3 +36,18 @@ def test_view_show_for_player_own_cards(capsys):
     captured = capsys.readouterr()
 
     assert "last played card" in captured.out
+
+def test_default_is_not_silent():
+    """Test that the default value for silent_mode is False."""
+    mock_game = MagicMock(spec=Game(2, human_player=False))
+    view = View(mock_game)
+    assert view._silent_mode == False
+
+def test_output(capsys):
+    """Test that the silent_mode attribute is respected."""
+    mock_game = MagicMock(spec=Game(2, human_player=False))
+
+    view = View(mock_game, silent_mode=False)
+    view.output("This should be printed")
+    captured = capsys.readouterr()
+    assert "This should be printed" in captured.out
