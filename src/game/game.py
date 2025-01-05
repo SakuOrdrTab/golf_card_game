@@ -72,11 +72,12 @@ class Game():
         if action == "d": # d is drawing deck
             card = self.deck.draw_from_deck()
             card.visible = True
+            print(f"{player.name} draws from the drawing deck.")
             return card
         elif action == "p": # p is played cards deck
             card = self.deck.draw_from_played()
             card.visible = True
-            print(f"The drawn card from played deck is {card}.")
+            print(f"{player.name} draws {card} from the played deck.")
             return card
         else:
             raise ValueError("Got invalid return from Player.get_draw_action()")
@@ -96,9 +97,10 @@ class Game():
             self.deck.add_to_played(hand_card)
         else: # should be a tuple (row, column) for play to table
             self.deck.add_to_played(player.table_cards[action[0]-1][action[1]-1])
-            print(f"{player.table_cards[action[0]-1][action[1]-1]} is placed on the played deck from the table by {player.name}")
+            print_later = f"{player.table_cards[action[0]-1][action[1]-1]} is placed on the played deck from the table by {player.name}"
             player.table_cards[action[0]-1][action[1]-1] = hand_card
-            print(f"{player.name} places {hand_card} on the table at {action[0]}. row, {action[1]}. place")
+            print(f"{player.name} puts {hand_card} on the table at {action[0]}. row, {action[1]}. place")
+            print(print_later)
 
     def player_plays_turn(self, player: Player) -> None:
         """Completes the drawing and playing of for one player, which constitutes

@@ -21,6 +21,7 @@ def test_player_gets_card():
         get_draw_action=MagicMock(side_effect=["d", "p"]),
         table_cards=[]  # Ensure table_cards attribute is present
     )
+    mock_player.name = "test"
 
     with patch("src.card_deck.CardDeck", return_value=mock_deck):
         game = Game(num_players=2, human_player=False)
