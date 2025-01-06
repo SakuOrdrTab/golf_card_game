@@ -146,7 +146,7 @@ def test_play_game_tied_scores():
 
 def test_play_game_max_players():
     """Test play_game works with the maximum number of players."""
-    game = Game(num_players=4, human_player=False)
+    game = Game(num_players=3, human_player=False)
     for player in game.players:
         player.table_cards = [[Card(Suit.DIAMONDS, i) for i in range(1, 4)] for _ in range(3)]
         for row in player.table_cards:
@@ -155,7 +155,7 @@ def test_play_game_max_players():
 
     result = game.play_game()
     assert result[0] > 0, "Game should play at least one turn"
-    assert len(result[1]) == 4, "Scores should include all players"
+    assert len(result[1]) == 3, "Scores should include all players"
     assert result[2] in result[1], "Winner's name should be in the scores"
 
 def test_play_game_min_players():

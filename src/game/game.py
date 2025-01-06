@@ -18,7 +18,7 @@ class Game():
         and deals the first card to the table
 
         Args:
-            num_players (int): number of players, 2-4
+            num_players (int): number of players, 2-3
             human_player (bool, optional): Check to True to add a human player. Defaults to True.
 
         Raises:
@@ -27,8 +27,8 @@ class Game():
         self.deck = CardDeck()
         self._silent_mode = silent_mode
         self.view = View(self, silent_mode=self._silent_mode)
-        if num_players < 2 or num_players > 4:
-            raise ValueError('Number of players must be 2-4')
+        if num_players < 2 or num_players > 3:
+            raise ValueError('Number of players must be 2-3')
         self.players = []
         self.players.append(HumanPlayer()) if human_player else self.players.append(ComputerPlayer())
         for _ in range(1, num_players):

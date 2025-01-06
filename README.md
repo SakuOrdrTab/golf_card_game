@@ -1,13 +1,12 @@
 # Golf
 
-Card game to test deep neural networks as computer players. Wrap ComputerPlayer class so, that it can be run as adversial network against itself and
-train.
+Card game to test deep neural networks as computer players. Wrap ComputerPlayer class so, that it can be run as adversial network against itself and train.
 
 ## The card game rules
 
 The actual game played isn't the Wikipedia official version (https://en.wikipedia.org/wiki/Golf_(card_game)), but a variant.
 
-There is one deck, so the number of players can be two to four. Each card is valued 0 (King) to 12 (Queen), other cards are their nominal value (J = 11, 2 = 2, Ace = 1 etc). The purpose of the game is to get as low sum of table cards in the end, whether they are already visible or not.
+There is one deck, so the number of players can be two to three. Each card is valued 0 (King) to 12 (Queen), other cards are their nominal value (J = 11, 2 = 2, Ace = 1 etc). The purpose of the game is to get as low sum of table cards in the end, whether they are already visible or not.
 
 The game sequence:
 
