@@ -1,6 +1,8 @@
 '''Reinforcement Learning Player for Golf'''
 
+import numpy as np
 from stable_baselines3 import DQN
+from src.player import Player
 
 class RLPlayer(Player):
     def __init__(self, model_path: str):
