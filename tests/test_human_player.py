@@ -46,7 +46,7 @@ def test_get_play_action_valid_inputs():
     """Test get_play_action accepts valid inputs ('p' or coordinates)."""
     game_status = {
         "other_players": [],
-        "player": [],
+        "player": [1,2,3], # has to have len 3, like in table_cards
         "played_top_card": None,
         "hand_card": None,
     }
@@ -66,7 +66,7 @@ def test_get_play_action_invalid_then_valid():
     """Test get_play_action rejects invalid inputs before accepting a valid one."""
     game_status = {
         "other_players": [],
-        "player": [],
+        "player": [1,2,3], # has to have len 3, like in table_cards
         "played_top_card": None,
         "hand_card": None,
     }

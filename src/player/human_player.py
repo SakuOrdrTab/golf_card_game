@@ -59,14 +59,13 @@ class HumanPlayer(Player):
                 try:
                     row, column = [int(x.strip()) for x in answer.split(",")]
                     # print("After split: ", row, column)
-                    return (row, column)
+                    if row in range(1, len(game_status['player'])+1) and column in range(1,4):
+                        return (row, column)
                 except:
                     print("Invalid input")
-            print("Please either state 'p' to place the card in your hand")
-            print("to the played deck, or give a coordinate separated by ',' to place")
-            print("the card in your table and that card goes to the played deck.")
-            print("Coordinates are for example 1,2 where 1 is rrrrrrrrrthe first row and 2 is")
-            print("the second column")
+            print("Please either state 'p' to place the card in your hand to the played deck, or give a " +\
+                  "coordinate separated by ',' to place the card in your table and that card goes to the played deck")
+            print("Coordinates are for example 1,2 where 1 is the first row and 2 is the second column")
 
     def turn_initial_cards(self, initial_table_cards):
         """At the beginning of the game, Game() constructor calls this to turn one
