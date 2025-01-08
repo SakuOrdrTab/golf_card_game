@@ -2,7 +2,8 @@
 
 import numpy as np
 from stable_baselines3 import DQN
-from src.player import Player
+from gymnasium import spaces
+from .player import Player
 
 class RLPlayer(Player):
     def __init__(self, model_path: str):
@@ -59,7 +60,7 @@ class RLPlayer(Player):
 
         return play_choice
 
-    def _encode_observation(self, game_status: dict, phase: int) -> "np.array":
+    def _encode_observation(self, game_status: dict, phase: int):
         """
         Must replicate the EXACT same feature encoding you used
         in your GolfTrainEnv during training. 
@@ -68,4 +69,32 @@ class RLPlayer(Player):
         If you used sub-step phases in training, incorporate that logic here.
         """
         # e.g., create a numpy array of length 10 (or whatever shape).
-        ...
+        def conv_value(card_str : str) -> int:
+            # Convert card string to numeric value.
+            if card_str[0] == "X":
+                return 20 # 20 is nonvisible card
+            else:
+                return int(card_str[1:])
+        def  table_card_stack_to_list(table_cards : list) -> list:
+            # Convert table card stacks to a list of integers.
+            rows_missing = 3 - len(table_cards)
+            res = []
+            for row in table_cards:
+                print(row)
+                res.extend([conv_value(card) for card in row])
+            for row in range(rows_missing):
+                res.extend([0,0,0]) # simulate removed row with kings
+            return res
+        observation_array = []
+        if "hand_card" in game_status:
+            observation_array.append(game_status['hand_card'].value)
+        else:
+            observation_array.append(-6) # no hand card
+        observation_array.append(game_status['played_top_card'].value)
+        observation_array.extend(table_card_stack_to_list(game_status['player']))
+        observation_array.extend(table_card_stack_to_list(game_status['other_players'][0]))
+        # It seems like multiDiscrete only accepts positive integers, so we need to shift the values by 1. (king = 0)
+        observation_array = [x+1 for x in observation_array]
+        return spaces.MultiDiscrete(observation_array)
+        # TODO: add Suit as a attribute to the observation
+        # For future use, missing third player can be ones?

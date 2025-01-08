@@ -3,7 +3,7 @@
 from random import shuffle
 
 from src.card_deck import CardDeck, Card
-from src.player import HumanPlayer, ComputerPlayer, AdvancedComputerPlayer, Player
+from src.player import HumanPlayer, ComputerPlayer, AdvancedComputerPlayer, Player, RLPlayer
 from src.view import View
 
 class Game():
@@ -13,7 +13,10 @@ class Game():
         ValueError: Number of players must be 2-4
         ValueError: Invalid return of internal game logic at player action
     """
-    def __init__(self, num_players: int, human_player: bool = True, silent_mode: bool = False) -> None:
+    def __init__(self, num_players: int, 
+                 human_player: bool = True,
+                 RLPlayer: bool = False,
+                 silent_mode: bool = False) -> None:
         """instantiates a golf card game. Sets players, turns initial cards
         and deals the first card to the table
 
@@ -27,10 +30,17 @@ class Game():
         self.deck = CardDeck()
         self._silent_mode = silent_mode
         self.view = View(self, silent_mode=self._silent_mode)
+        
         if num_players < 2 or num_players > 3:
             raise ValueError('Number of players must be 2-3')
         self.players = []
-        self.players.append(HumanPlayer()) if human_player else self.players.append(ComputerPlayer())
+        if human_player:
+            self.players.append(HumanPlayer())
+        elif RLPlayer:
+            self.players.append(RLPlayer())
+        else:
+            self.players.append(ComputerPlayer())
+
         for _ in range(1, num_players):
             self.players.append(AdvancedComputerPlayer())
         for player in self.players:
