@@ -5,131 +5,242 @@ import gymnasium as gym
 from gymnasium import spaces
 
 from src.game import Game
+from src.card_deck import Card
+from src.player import AdvancedComputerPlayer, ComputerPlayer
 
 class GolfTrainEnv(gym.Env):
     def __init__(self):
         super().__init__()
         
-        
-        # PHASE 1 action space: draw from deck or discard
-        #   => e.g. Discrete(2) with 0 = deck, 1 = discard
-        self.action_space_phase1 = spaces.Discrete(2)   # 0 = deck, 1 = discard
-        # PHASE 2 action space: place the card in one of the (row, col) spots or discard
-        #   => e.g. Discrete(10) for 9 table positions + 1 discard
-        self.action_space_phase2 = spaces.Discrete(10)  # 0..8 => (row,col), 9 => discard
+        # PHASE 1 action space: draw from deck (0) or discard (1)
+        self.action_space_phase1 = spaces.Discrete(2)
+        # PHASE 2 action space: place the card on table positions 0..8 or discard (9)
+        self.action_space_phase2 = spaces.Discrete(10)
 
-        # We will set self.action_space dynamically in reset() or step().
+        # We'll unify them by just picking the "largest" possible:
+        # 0..9 => 10 discrete actions
+        # In step(), if self.phase=1, we only interpret 0 or 1
+        self.action_space = spaces.Discrete(10)
 
-        # Similarly, define your observation space (size depends on game representation).
-        self.observation_space = spaces.MultiDiscrete()
+        # For observation space, let's assume we have 1 hand_card + 1 top_discard
+        # + 9 for RL player table + 9 for opponent table = 20 integers total.
+        # Each integer is in [1..21] (since we shift +1).
+        # => spaces.MultiDiscrete([21]*20)
+        self.observation_space = spaces.MultiDiscrete([22]*20)
 
-        self.game = None # Sets in reset()
-        self.phase = 1  # Start in "draw" phase
+        self.game = None
+        self.phase = 1  # 1 = draw, 2 = play
         self.done = False
+        self.num_players = 2  # For training, let's do 2-player game:
+                              # RL seat is index 0, opponent seat is index 1
 
-    def reset(self):
-        # Initialize the game, shuffle players, etc.
-        # Train with TWO PLAYERS
-        self.game = Game(num_players=2,
+        self._last_drawn_card = None  # Store the card the RL seat drew in phase 1
+
+    def reset(self, seed=None, options=None):
+        super().reset(seed=seed)
+
+        # Create a new game with 2 players: seat0= RL seat, seat1= Computer or Advanced AI
+        # We'll let the game think it's:
+        #   - (human_player=False => that means seat0 is "some" player, but we skip that)
+        #   - We won't rely on the seat0's logic, we handle it ourselves.
+        self.game = Game(num_players=self.num_players,
                          human_player=False,
-                         RLPlayer = True,
+                         RLPlayer=False,   # We'll bypass anyway for seat 0
+                         rl_training_mode=True, # never discard rows
                          silent_mode=True)
-        self.phase = 1 # Draw
-        self.done = False
-        return self._get_observation() # or spaces.MultiDiscrete(self._get_observation()) ?
-
-    def step(self, action):
-        if self.done:
-            # If the game is over but SB3 calls step again, you could either
-            # raise an exception or just return the same thing.
-            return self._get_observation(), 0.0, True, {}
         
+        # # Optionally replace seat[1] with a better AI if you want
+        # # For example:
+        # self.game.players[1] = AdvancedComputerPlayer()
+
+        self.phase = 1
+        self.done = False
+        self._last_drawn_card = None
+
+        # Return observation
+        observation = self._get_observation()
+        # Gymnasium requires (obs, info) on reset
+        return observation, {}
+    
+    def step(self, action):
+        """
+        Each step is a single sub-action for the RL seat:
+          - If phase=1 => 'draw' action
+          - If phase=2 => 'place' action
+        Then, if phase=2, we let the other seat(s) do their full turn.
+        """
+        if self.done:
+            # If the episode is over, we can either raise or return the same
+            return self._get_observation(), 0.0, True, {}, {}
+
+        # We'll track reward separately for final
+        reward = 0.0
+        info = {}
+
+        ############################
+        # PHASE 1: "draw" (action in [0..9], but only 0 or 1 matter)
+        ############################
         if self.phase == 1:
-            # Phase 1: agent chooses "deck" or "discard"
-            # action in {0,1}
-            draw_choice = "d" if action == 0 else "p"
+            # decode 0 => "d" (deck), 1 => "p" (discard)
+            # if action > 1 => we can clamp or ignore
+            if action == 0:
+                draw_choice = "d"
+            else:
+                draw_choice = "p"
 
-            # Force the RL player's draw action
-            self._force_draw_for_rl(draw_choice)
+            # Actually draw the card:
+            if draw_choice == "d":
+                self._last_drawn_card = self.game.deck.draw_from_deck()
+                self._last_drawn_card.visible = True
+            else:
+                self._last_drawn_card = self.game.deck.draw_from_played()
+                self._last_drawn_card.visible = True
 
-            # Move to phase 2 so the agent can decide how to place the drawn card
+            # Move to phase 2
             self.phase = 2
-
-            # Build observation that now includes the "hand card"
             obs = self._get_observation()
-            reward = 0.0
-            done = False  # we’re not finishing the turn or game yet
-            info = {}
-            return obs, reward, done, info
+            return obs, reward, False, False, info
 
+        ############################
+        # PHASE 2: "play" (action in [0..9])
+        ############################
         elif self.phase == 2:
-            # Phase 2: agent places the card (0..8 => which table spot, 9 => discard)
             if action == 9:
-                play_choice = ("p", None)  # discard
+                # discard
+                self.game.deck.add_to_played(self._last_drawn_card)
             else:
                 row = action // 3 + 1
                 col = action % 3 + 1
-                play_choice = (row, col)
+                # We place the new card on RL seat's table,
+                # discarding whatever was there
+                replaced_card = self.game.players[0].table_cards[row-1][col-1]
+                self.game.deck.add_to_played(replaced_card)
+                self.game.players[0].table_cards[row-1][col-1] = self._last_drawn_card
 
-            # Force the RL player's play action
-            self._force_play_for_rl(play_choice)
+            # Possibly check full rows for the RL seat, since the turn is done
+            self.game.check_full_rows(self.game.players[0])
 
-            # Now the RL player's turn is finished. Let the other players take their turns
-            self._let_other_players_play()
+            # Now let the other seat(s) do their entire turn normally
+            for i in range(1, self.num_players):
+                self.game.player_plays_turn(self.game.players[i])
 
-            # Check if the game is done
+            # Check if the game ended
             if self.game.check_game_over():
                 self.done = True
 
-            # Compute reward
-            reward = 0.0
+            # Possibly compute final reward
             if self.done:
-                # Example: final reward = -score
-                rl_player = self.game.players[0]  # if index 0 is RL seat
-                score = self.game.player_score(rl_player)
-                reward = -float(score)
+                # negative final score
+                # score = self.game.player_score(self.game.players[0])
+                # reward = -float(score)
 
-            # Move back to phase 1 for the next turn (if not done)
+                # zero for loss, one for victory
+                reward = 1 if self.game.player_score(self.game.players[0]) < self.game.player_score(self.game.players[0]) else 0
+
+            # Move back to phase=1 (draw) for the next RL turn
             if not self.done:
                 self.phase = 1
 
             obs = self._get_observation()
             done = self.done
-            info = {}
-            return obs, reward, done, info
+            return obs, reward, done, False, info
         
+    def _get_observation(self):
+        """
+        Build the RL seat's observation by calling 
+        self.game.get_game_status_for_player(...),
+        then encode with 'game_status_to_multidiscrete'.
+        """
+        rl_player = self.game.players[0]
+
+        # print(f"SELF PHASE: {self.phase}")
+
+        # If we're in phase=2, we have a drawn card
+        if self.phase == 2 and self._last_drawn_card is not None:
+            hand_card = self._last_drawn_card
+        else:
+            hand_card = None
+
+        game_status = self.game.get_game_status_for_player(
+            rl_player, 
+            hand_card=hand_card
+        )
+        
+        # Now convert that status dict to a numeric observation
+        obs = game_status_to_multidiscrete(game_status)
+        return obs    
+        
+
 def game_status_to_multidiscrete(game_status : dict):
     """
-    Convert game status to observation vector.
-    This function should replicate the same encoding used in training.
+    Convert game status to an array-like object.
+    Then produce a MultiDiscrete or np.array of the appropriate length.
     """
     def conv_value(card_str : str) -> int:
         # Convert card string to numeric value.
-        if card_str[0] == "X":
-            return 20 # 20 is nonvisible card
+        if card_str.startswith("X"):
+            # Face-down or hidden card
+            return 20  # 20 is "nonvisible" placeholder
         else:
+            # card_str might look like "C7", "D12", etc.
+            # We'll parse the numeric portion after the suit char
+            # Example: 'C7' => 7
             return int(card_str[1:])
-    def  table_card_stack_to_list(table_cards : list) -> list:
-        # Convert table card stacks to a list of integers.
+
+    def table_cards_to_list(table_cards : list) -> list:
+        """
+        Convert table_cards (like [[C2, D2, X12], [...], ...]) 
+        into a flat list of integers (with row placeholders).
+        We'll assume up to 3 rows of 3 cards each.
+        If a row is removed, we simulate with [0,0,0].
+        """
         rows_missing = 3 - len(table_cards)
         res = []
         for row in table_cards:
-            print(row)
+            # row is a list of card strings
             res.extend([conv_value(card) for card in row])
-        for row in range(rows_missing):
-            res.extend([0,0,0]) # simulate removed row with kings
+        # For any removed rows, just fill with 3 zeroes each
+        for _ in range(rows_missing):
+            res.extend([0, 0, 0])
         return res
+
     observation_array = []
-    if "hand_card" in game_status:
+
+    # 1) Hand card (if any)
+    if "hand_card" in game_status and game_status['hand_card'] is not None:
+        # 'hand_card' is a Card object, so let's take its .value
+        # or we could do int(card_str[1:])
         observation_array.append(game_status['hand_card'].value)
     else:
-        observation_array.append(-6) # no hand card
-    observation_array.append(game_status['played_top_card'].value)
-    observation_array.extend(table_card_stack_to_list(game_status['player']))
-    observation_array.extend(table_card_stack_to_list(game_status['other_players'][0]))
-    # It seems like multiDiscrete only accepts positive integers, so we need to shift the values by 1. (king = 0)
-    observation_array = [x+1 for x in observation_array]
-    return spaces.MultiDiscrete(observation_array)
-    # TODO: add Suit as a attribute to the observation
-    # For future use, missing third player can be ones?
-    
+        # No hand card currently
+        observation_array.append(20)
+
+    # 2) Top of discard (played_top_card)
+    top_card_value = 20 # Missing top card, can happen in some strange situations, when card is taken from played deck when it has only one and no other card has yet been placed to it.
+    if "played_top_card" in game_status and game_status['played_top_card'] is not None:
+        top_card_value = game_status['played_top_card'].value
+    observation_array.append(top_card_value)
+
+    # 3) RL player's table cards
+    #    game_status['player'] is a list of rows => each row is a list of strings
+    observation_array.extend(table_cards_to_list(game_status['player']))
+
+    # 4) Opponent's table (assuming exactly 1 opponent for training)
+    #    If there's more than 1, you'd adapt accordingly.
+    if len(game_status['other_players']) > 0:
+        # 'other_players' is a list of each other player's table layout
+        # for training with 2 players total, we only have index 0
+        observation_array.extend(table_cards_to_list(game_status['other_players'][0]))
+    else:
+        # No other players? fill with 9 zeroes
+        observation_array.extend([0]*9)
+
+    # Shift all values +1 so they become strictly positive
+    # (MultiDiscrete requires [0..n] or [1..n], depending on usage)
+    # If your max raw value is 20, then +1 => up to 21.
+    observation_array = [val + 1 for val in observation_array]
+
+    # Return it as a standard Python list or NumPy array.
+    # For the environment's observation, we'll often do a np.array(...).
+    # print(f"OBSERVATION ARRAY:{observation_array}")
+    return np.array(observation_array, dtype=np.int32)

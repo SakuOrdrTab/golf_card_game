@@ -2,7 +2,7 @@
 
 from random import shuffle
 
-from src.card_deck import CardDeck, Card
+from src.card_deck import CardDeck, Card, Suit
 from src.player import HumanPlayer, ComputerPlayer, AdvancedComputerPlayer, Player, RLPlayer
 from src.view import View
 
@@ -16,6 +16,7 @@ class Game():
     def __init__(self, num_players: int, 
                  human_player: bool = True,
                  RLPlayer: bool = False,
+                 rl_training_mode = False,
                  silent_mode: bool = False) -> None:
         """instantiates a golf card game. Sets players, turns initial cards
         and deals the first card to the table
@@ -30,6 +31,7 @@ class Game():
         self.deck = CardDeck()
         self._silent_mode = silent_mode
         self.view = View(self, silent_mode=self._silent_mode)
+        self.rl_training_mode = rl_training_mode
         
         if num_players < 2 or num_players > 3:
             raise ValueError('Number of players must be 2-3')
@@ -141,6 +143,14 @@ class Game():
             if all([card.visible for card in row]) and len(set([card.value for card in row])) == 1:
                 self.view.output(f"{player.name}'s row of cards is complete and is removed.\n{row}")
                 player.table_cards.remove(row)
+                # Add a dummy row for RLPlayer, so table_cards.shape is always (3,3)
+                if self.rl_training_mode:
+                    player.table_cards.append([
+                        Card(Suit.SPADES, 0),
+                        Card(Suit.SPADES, 0),
+                        Card(Suit.SPADES, 0)
+                    ])
+                    
 
     def check_game_over(self) -> bool:
         """Checks if game over condition is reached. (All cards of one player visible on table)
