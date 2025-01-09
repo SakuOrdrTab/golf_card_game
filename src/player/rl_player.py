@@ -3,7 +3,7 @@
 import numpy as np
 from random import randint
 from stable_baselines3 import DQN
-from gymnasium import spaces
+# from gymnasium import spaces
 from .player import Player
 
 class RLPlayer(Player):
@@ -80,7 +80,7 @@ class RLPlayer(Player):
             rows_missing = 3 - len(table_cards)
             res = []
             for row in table_cards:
-                print(row)
+                # print(row)
                 res.extend([conv_value(card) for card in row])
             for row in range(rows_missing):
                 res.extend([0,0,0]) # simulate removed row with kings
