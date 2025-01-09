@@ -25,3 +25,16 @@ The game sequence:
 6. After that, the remaining players have still their turns.
 
 7. The score is calculated and the player with least score wins.
+
+## Notes on training the reinforcement training agents
+
+The training happens using the GolfTrainEnv quite simply using the mantest_golftrainenv.py using the stable baselines 3.
+To be noted is that the AdvancedComputerPlayer using some rules to play is quite skillfull, which means that training a model from scratch is complicated;
+
+The model at first does not get very many wins, thus it is difficult to get rewards and thus learn.
+
+A good strategy might be first setting the reward not to be a win, but just the relative score compared to the other player.
+
+As the model gets better, you might want to change back to giving reward just for a win. In this game the score itself does not count, only the fact if you get a lower score than the opponent.
+
+After some time it is not a good idea to train the agent just against the deterministic AdvancedComputerPlayer; this overfits the model to take use of small weaknesses in the deterministic algorithm and it really does not become a really strong player. At this point the model has to be switched to play agains itself, for example a saved model with shown efficiency against a AdvancedComputerPlayer.

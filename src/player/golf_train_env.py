@@ -135,8 +135,12 @@ class GolfTrainEnv(gym.Env):
                 # reward = -float(score)
 
                 # zero for loss, one for victory
-                reward = 1.0 if self.game.player_score(self.game.players[0]) < self.game.player_score(self.game.players[1]) else 0.0
-                print(f"REWARD: {reward}")
+                # reward = 1.0 if self.game.player_score(self.game.players[0]) < self.game.player_score(self.game.players[1]) else 0.0
+                # relative score
+                reward = -self.game.player_score(self.game.players[0]) + self.game.player_score(self.game.players[1])
+                
+                if reward > 0.0:
+                    print(f"REWARD: {reward}!")
 
             # Move back to phase=1 (draw) for the next RL turn
             if not self.done:

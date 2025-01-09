@@ -10,7 +10,7 @@ class RLPlayer(Player):
     def __init__(self):
         super().__init__()
         # Load the trained RL model , use cpu for compability
-        self.model = DQN.load("golf_agent_500000ep_DQN", device="cpu")
+        self.model = DQN.load("golf_agent_200000ep_DQN", device="cpu")
         self.internal_phase = 1  # keep track if you use a sub-step approach
         self.last_obs = None     # store the last observation from "phase 1"
 
