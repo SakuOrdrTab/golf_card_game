@@ -15,7 +15,7 @@ class Game():
     """
     def __init__(self, num_players: int, 
                  human_player: bool = True,
-                 RLPlayer: bool = False,
+                 rl_player: bool = False,
                  rl_training_mode = False,
                  silent_mode: bool = False) -> None:
         """instantiates a golf card game. Sets players, turns initial cards
@@ -38,12 +38,12 @@ class Game():
         self.players = []
         if human_player:
             self.players.append(HumanPlayer())
-        elif RLPlayer:
+        if rl_player:
             self.players.append(RLPlayer())
         else:
             self.players.append(ComputerPlayer())
 
-        for _ in range(1, num_players):
+        for _ in range(len(self.players), num_players):
             self.players.append(AdvancedComputerPlayer())
         for player in self.players:
             # Deal 9 cards for each player and place them in shape of 3x3

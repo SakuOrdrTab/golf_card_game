@@ -2,10 +2,7 @@
 
 from src.game import Game
 
-import numpy as np
-import pandas as pd
-
 if __name__ == '__main__':
-    game = Game(num_players=2, human_player=True)
+    game = Game(num_players=2, human_player=True, rl_player=True, silent_mode=False)
     results = game.play_game()
     print(results)

@@ -45,7 +45,7 @@ class GolfTrainEnv(gym.Env):
         #   - We won't rely on the seat0's logic, we handle it ourselves.
         self.game = Game(num_players=self.num_players,
                          human_player=False,
-                         RLPlayer=False,   # We'll bypass anyway for seat 0
+                         rl_player=False,   # We'll bypass anyway for seat 0
                          rl_training_mode=True, # never discard rows
                          silent_mode=True)
         

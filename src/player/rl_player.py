@@ -1,16 +1,16 @@
 '''Reinforcement Learning Player for Golf'''
 
 import numpy as np
+from random import randint
 from stable_baselines3 import DQN
 from gymnasium import spaces
 from .player import Player
 
 class RLPlayer(Player):
-    def __init__(self, model_path: str):
+    def __init__(self):
         super().__init__()
-        # Load the trained RL model
-        # (You trained it in a separate training script/notebook)
-        self.model = DQN.load(model_path)
+        # Load the trained RL model , use cpu for compability
+        self.model = DQN.load("golf_agent_500000ep_DQN", device="cpu")
         self.internal_phase = 1  # keep track if you use a sub-step approach
         self.last_obs = None     # store the last observation from "phase 1"
 
@@ -89,12 +89,37 @@ class RLPlayer(Player):
         if "hand_card" in game_status:
             observation_array.append(game_status['hand_card'].value)
         else:
-            observation_array.append(-6) # no hand card
-        observation_array.append(game_status['played_top_card'].value)
+            observation_array.append(20) # no hand card
+        
+        # 2) Top of discard (played_top_card)
+        top_card_value = 20 # Missing top card, can happen in some strange situations, when card is taken from played deck when it has only one and no other card has yet been placed to it.
+        if "played_top_card" in game_status and game_status['played_top_card'] is not None:
+            top_card_value = game_status['played_top_card'].value
+        observation_array.append(top_card_value)
+
         observation_array.extend(table_card_stack_to_list(game_status['player']))
         observation_array.extend(table_card_stack_to_list(game_status['other_players'][0]))
         # It seems like multiDiscrete only accepts positive integers, so we need to shift the values by 1. (king = 0)
         observation_array = [x+1 for x in observation_array]
-        return spaces.MultiDiscrete(observation_array)
+        # print("OBS ARRAY: ", observation_array)
+        return np.array(observation_array, dtype=np.int32)
         # TODO: add Suit as a attribute to the observation
         # For future use, missing third player can be ones?
+
+    def inform_game_result(self, win: bool, relative_score: int) -> None:
+        """
+        Inform the player about the game result.
+        """
+        return None
+    
+    def turn_initial_cards(self, initial_table_cards):
+        """
+        Same as AdvancedComputerPlayer, just random card from each row.
+        """
+        result = []
+        for r, row in enumerate(initial_table_cards):
+            # Flip exactly 1 card from each row
+            flip_col = randint(1, len(row))
+            result.append((r + 1, flip_col))
+        # print(f"{self.name} turns the initial cards visible.")
+        return result  
