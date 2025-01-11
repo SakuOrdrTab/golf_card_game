@@ -6,7 +6,7 @@ from gymnasium import spaces
 
 from src.game import Game
 from src.card_deck import Card
-from src.player import AdvancedComputerPlayer, ComputerPlayer
+from src.player import AdvancedComputerPlayer, ComputerPlayer, RLPlayer
 
 class GolfTrainEnv(gym.Env):
     def __init__(self):
@@ -45,13 +45,12 @@ class GolfTrainEnv(gym.Env):
         #   - We won't rely on the seat0's logic, we handle it ourselves.
         self.game = Game(num_players=self.num_players,
                          human_player=False,
-                         rl_player=False,   # We'll bypass anyway for seat 0
+                         rl_player=True,   # We'll bypass anyway for seat 0
                          rl_training_mode=True, # never discard rows
                          silent_mode=True)
         
-        # # Optionally replace seat[1] with a better AI if you want
-        # # For example:
-        # self.game.players[1] = AdvancedComputerPlayer()
+        # for i, p in enumerate(self.game.players):
+        #     print(f"Seat {i}: {p.name}, type = {type(p)}")
 
         self.phase = 1
         self.done = False
@@ -69,9 +68,16 @@ class GolfTrainEnv(gym.Env):
           - If phase=2 => 'place' action
         Then, if phase=2, we let the other seat(s) do their full turn.
         """
+        # Temporary measure for agent learning: limit turns to 45
+        if self.game.turn > 45:
+            self.done = True
+
         if self.done:
             # If the episode is over, we can either raise or return the same
             return self._get_observation(), 0.0, True, {}, {}
+
+        # Intermediate reward: the change of own score
+        last_turn_score = self.game.player_score(self.game.players[0])
 
         # We'll track reward separately for final
         reward = 0.0
@@ -137,6 +143,7 @@ class GolfTrainEnv(gym.Env):
                 # zero for loss, one for victory
                 # reward = 1.0 if self.game.player_score(self.game.players[0]) < self.game.player_score(self.game.players[1]) else 0.0
                 # relative score
+                print("Complete at ", self.game.turn, " turns.")
                 reward = -self.game.player_score(self.game.players[0]) + self.game.player_score(self.game.players[1])
                 
                 if reward > 0.0:
@@ -146,6 +153,12 @@ class GolfTrainEnv(gym.Env):
             if not self.done:
                 self.phase = 1
 
+            # Calculate the intermediate reward
+            current_turn_score = self.game.player_score(self.game.players[0])
+            intermediate_reward = (-last_turn_score + current_turn_score) / 10
+
+            reward += intermediate_reward
+                                   
             obs = self._get_observation()
             done = self.done
             return obs, reward, done, False, info

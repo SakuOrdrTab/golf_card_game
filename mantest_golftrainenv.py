@@ -7,17 +7,6 @@ from src.player.golf_train_env import GolfTrainEnv
 
 env = GolfTrainEnv()
 
-# '''
-# [♢0, ♤2, ♤1]
-# [♢2, ♡12, ♤7]
-# [♡4, ♢6, ♤3]
-# Player's cards:
-# [♧2, ♢11, ♡7]
-# [♧7, ♡12, ♢6]
-# [♤12, ♤9, ♢8]
-# last played card:  ♤12
-# '''
-
 class RewardLoggerCallback(BaseCallback):
     def __init__(self, check_freq: int = 1000, verbose: int = 1):
         super().__init__(verbose)
@@ -45,34 +34,31 @@ class RewardLoggerCallback(BaseCallback):
 
         return True
 
-
-    
-# eval_callback = EvalCallback(
-#     env,
-#     best_model_save_path="./logs/",
-#     log_path="./logs/",
-#     eval_freq=5000,
-#     deterministic=True,
-#     render=False,
-# )
-    
-
-# model_path = "golf_agent_100000ep_DQN.zip"
+model_path = "golf_agent_1000000ep_DQN"
 # # Load a saved model
-# model = DQN.load(model_path, env=env, device="cuda") 
+model = DQN.load(model_path, env=env, device="cuda") 
 
 start = time.time()
 
 # 500 000 episodes took 13 minutes with cuda
-EPISODES = 2000000
-CHECK_FREQ = 20000
+# 2000 000 episodes took 53 minutes with cuda
+EPISODES = 10000
+CHECK_FREQ = 100000
 
 reward_logger = RewardLoggerCallback(check_freq=CHECK_FREQ)
 
-# policy_kwargs = dict(net_arch=[128, 128])  # Two hidden layers with 128 neurons each
+policy_kwargs = dict(net_arch=[256, 128])  
 # To use CUDA you have to have a capable GPU and pytorch installment
 # model = DQN("MlpPolicy", env, verbose=0, device="cuda", policy_kwargs=policy_kwargs)
-model = DQN("MlpPolicy", env, verbose=0, device="cpu", learning_rate=0.005)
+# model = DQN("MlpPolicy", 
+#             env, 
+#             verbose=0, 
+#             device="cuda", 
+#             learning_rate=0.005,
+#             exploration_fraction=0.3,
+#             exploration_final_eps=0.03,
+#             policy_kwargs=policy_kwargs
+#         )
 
 model.learn(EPISODES, callback=reward_logger)
 

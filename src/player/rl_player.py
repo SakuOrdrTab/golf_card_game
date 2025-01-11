@@ -10,12 +10,12 @@ class RLPlayer(Player):
     def __init__(self):
         super().__init__()
         # Load the trained RL model , use cpu for compability
-        self.model = DQN.load("golf_agent_200000ep_DQN", device="cpu")
+        self.model = DQN.load("golf_agent_1000000ep_DQN", device="cpu")
         self.internal_phase = 1  # keep track if you use a sub-step approach
         self.last_obs = None     # store the last observation from "phase 1"
 
     def get_player_name(self) -> str:
-        return "RL Agent"
+        return "RL Agent " + str(randint(1,10000))
 
     def get_draw_action(self, game_status: dict) -> str:
         """
@@ -26,6 +26,7 @@ class RLPlayer(Player):
         """
         # We are in "draw" step => interpret the model's output accordingly.
         obs = self._encode_observation(game_status, phase=1)
+        # print("[DEBUG]Next doing model predict draw, player:", self.name)
         action, _ = self.model.predict(obs, deterministic=True)
 
         # Decode the 'action' to "d" or "p" (depending on your training scheme)
@@ -45,6 +46,7 @@ class RLPlayer(Player):
         into an observation, call `model.predict()`, decode the action, and return.
         """
         obs = self._encode_observation(game_status, phase=2)
+        # print("[DEBUG]Next doing model predict play, player:", self.name)
         action, _ = self.model.predict(obs, deterministic=True)
 
         # action -> either table position or discard

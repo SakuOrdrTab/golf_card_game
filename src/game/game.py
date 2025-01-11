@@ -44,7 +44,7 @@ class Game():
             self.players.append(ComputerPlayer())
 
         for _ in range(len(self.players), num_players):
-            self.players.append(AdvancedComputerPlayer())
+            self.players.append(RLPlayer()) # In this phase of training use RLPlayer
         for player in self.players:
             # Deal 9 cards for each player and place them in shape of 3x3
             table_cards = self.deal_initial_cards()
@@ -59,6 +59,7 @@ class Game():
         self.deck.deal_first_card()
         shuffle(self.players)
         self.view.output(f"Players shuffled, player {self.players[0].name} starts...")
+        self.turn = 0
         self.view.output("Complete init")
 
     def deal_initial_cards(self) -> list:
@@ -183,13 +184,14 @@ class Game():
         Returns:
             tuple: (turns played, scores dict, winner_name)
         """
-        turn = 0
         last_round = False  # Flag to indicate whether the extra round is active
 
         while not last_round or not self.check_game_over():
-            turn += 1
+            self.turn += 1
+
+
             self.view.output('------------')
-            self.view.output(f'Turn {turn}:')
+            self.view.output(f'Turn {self.turn}:')
 
             for player in self.players:
                 self.player_plays_turn(player)
@@ -201,7 +203,7 @@ class Game():
             if last_round and self.check_game_over():
                 break  # Exit the loop after completing the extra round
 
-        print(f"Game over in {turn} rounds!")
+        print(f"Game over in {self.turn} rounds!")
         print("Scores:")
         scores = {}
         for player in self.players:
@@ -211,7 +213,7 @@ class Game():
         for name in scores.keys():
             if scores[name] < scores[winner_name]:
                 winner_name = name
-        return (turn, scores, winner_name)
+        return (self.turn, scores, winner_name)
 
     def get_game_status_for_player(self, player : Player, hand_card = None) -> dict:
         """Getter method for the game status. This can and will be passed to each player,
