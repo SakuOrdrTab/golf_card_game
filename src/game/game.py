@@ -3,7 +3,7 @@
 from random import shuffle
 
 from src.card_deck import CardDeck, Card, Suit
-from src.player import HumanPlayer, ComputerPlayer, AdvancedComputerPlayer, Player, RLPlayer
+from src.player import HumanPlayer, ComputerPlayer, AdvancedComputerPlayer, Player, RLPlayer, StupidComputerPlayer
 from src.view import View
 
 class Game():
@@ -16,7 +16,9 @@ class Game():
     def __init__(self, num_players: int, 
                  human_player: bool = True,
                  rl_player: bool = False,
-                 rl_training_mode = False,
+                 stupid_player:bool = False,
+                 advanced_player:bool  = False,
+                 rl_training_mode:bool = False,
                  silent_mode: bool = False) -> None:
         """instantiates a golf card game. Sets players, turns initial cards
         and deals the first card to the table
@@ -40,11 +42,15 @@ class Game():
             self.players.append(HumanPlayer())
         if rl_player:
             self.players.append(RLPlayer())
+        if advanced_player:
+            self.players.append(AdvancedComputerPlayer())
+        if stupid_player:
+            self.players.append(StupidComputerPlayer())
         else:
             self.players.append(ComputerPlayer())
 
         for _ in range(len(self.players), num_players):
-            self.players.append(AdvancedComputerPlayer()) # In this phase of training use RLPlayer
+            self.players.append(StupidComputerPlayer()) # In this phase of training use RLPlayer
         for player in self.players:
             # Deal 9 cards for each player and place them in shape of 3x3
             table_cards = self.deal_initial_cards()

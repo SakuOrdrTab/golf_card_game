@@ -8,7 +8,12 @@ import pandas as pd
 if __name__ == '__main__':
     results = pd.DataFrame(columns=['winner', 'turns', 'advanced'])
     for i in range(100):
-        game = Game(2, human_player=False, silent_mode=False, rl_player=False)
+        game = Game(2, 
+                    human_player=False, 
+                    silent_mode=False, 
+                    stupid_player=False,
+                    advanced_player=True,
+                    rl_player=False)
         turns, score_dict, winner = game.play_game()
         advanced = winner.startswith("Advanced")
         new_row = pd.DataFrame(
