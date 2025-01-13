@@ -35,8 +35,6 @@ class Game():
         self.view = View(self, silent_mode=self._silent_mode)
         self.rl_training_mode = rl_training_mode
         
-        if num_players < 2 or num_players > 3:
-            raise ValueError('Number of players must be 2-3')
         self.players = []
         if human_player:
             self.players.append(HumanPlayer())
@@ -46,11 +44,14 @@ class Game():
             self.players.append(AdvancedComputerPlayer())
         if stupid_player:
             self.players.append(StupidComputerPlayer())
-        else:
-            self.players.append(ComputerPlayer())
 
-        for _ in range(len(self.players), num_players):
-            self.players.append(StupidComputerPlayer()) # In this phase of training use RLPlayer
+        if len(self.players) > num_players:
+            raise ValueError('Too many players from constructor arguments')
+        if num_players < 2 or num_players > 3:
+            raise ValueError('Number of players must be 2-3')
+        if len(self.players) < num_players:
+            for _ in range(len(self.players), num_players):
+                self.players.append(StupidComputerPlayer()) # In this phase of training use RLPlayer
         for player in self.players:
             # Deal 9 cards for each player and place them in shape of 3x3
             table_cards = self.deal_initial_cards()

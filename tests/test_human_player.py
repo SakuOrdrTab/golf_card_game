@@ -31,8 +31,12 @@ def test_get_draw_action_valid_inputs():
 def test_get_draw_action_invalid_then_valid():
     """Test get_draw_action rejects invalid inputs and accepts valid input."""
     game_status = {
-        "other_players": [],
-        "player": [],
+        "other_players": [["XX", "♧1", "XX"],
+                        ["XX", "XX", "♤10"],
+                        ["XX", "♧6", "XX"]],
+        "player": [["XX", "♧11", "XX"],
+                        ["XX", "XX", "♤11"],
+                        ["XX", "♧3", "XX"]],
         "played_top_card": None,
     }
 

@@ -77,7 +77,7 @@ class RLPlayer(Player):
                 return 20 # 20 is nonvisible card
             else:
                 return int(card_str[1:])
-        def  table_card_stack_to_list(table_cards : list) -> list:
+        def table_card_stack_to_list(table_cards : list) -> list:
             # Convert table card stacks to a list of integers.
             rows_missing = 3 - len(table_cards)
             res = []
