@@ -1,5 +1,5 @@
 import time
-from stable_baselines3 import DQN
+from stable_baselines3 import DQN, PPO
 from stable_baselines3.common.callbacks import BaseCallback, EvalCallback
 import matplotlib.pyplot as plt
 
@@ -34,31 +34,31 @@ class RewardLoggerCallback(BaseCallback):
 
         return True
 
-model_path = "golf_agent_1000000ep_DQN"
+# model_path = "golf_agent_1000000ep_DQN"
 # # Load a saved model
-model = DQN.load(model_path, env=env, device="cuda") 
+# model = DQN.load(model_path, env=env, device="cuda") 
 
 start = time.time()
 
 # 500 000 episodes took 13 minutes with cuda
 # 2000 000 episodes took 53 minutes with cuda
 EPISODES = 10000
-CHECK_FREQ = 100000
+CHECK_FREQ = 1000
 
 reward_logger = RewardLoggerCallback(check_freq=CHECK_FREQ)
 
 policy_kwargs = dict(net_arch=[256, 128])  
 # To use CUDA you have to have a capable GPU and pytorch installment
 # model = DQN("MlpPolicy", env, verbose=0, device="cuda", policy_kwargs=policy_kwargs)
-# model = DQN("MlpPolicy", 
-#             env, 
-#             verbose=0, 
-#             device="cuda", 
-#             learning_rate=0.005,
-#             exploration_fraction=0.3,
-#             exploration_final_eps=0.03,
-#             policy_kwargs=policy_kwargs
-#         )
+model = DQN("MlpPolicy", 
+            env, 
+            verbose=0, 
+            device="cuda", 
+            learning_rate=0.005,
+            exploration_fraction=0.3,
+            exploration_final_eps=0.03,
+            policy_kwargs=policy_kwargs
+        )
 
 model.learn(EPISODES, callback=reward_logger)
 

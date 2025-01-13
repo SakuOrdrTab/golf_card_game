@@ -39,6 +39,8 @@ class GolfTrainEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
 
+        self.turn = 0
+
         # Create a new game with 2 players: seat0= RL seat, seat1= Computer or Advanced AI
         # We'll let the game think it's:
         #   - (human_player=False => that means seat0 is "some" player, but we skip that)
@@ -69,6 +71,9 @@ class GolfTrainEnv(gym.Env):
           - If phase=2 => 'place' action
         Then, if phase=2, we let the other seat(s) do their full turn.
         """
+
+        self.turn += 1
+
         # Temporary measure for agent learning: limit turns to 45
         if self.game.turn > 45:
             self.done = True
@@ -144,7 +149,7 @@ class GolfTrainEnv(gym.Env):
                 # zero for loss, one for victory
                 # reward = 1.0 if self.game.player_score(self.game.players[0]) < self.game.player_score(self.game.players[1]) else 0.0
                 # relative score
-                print("Complete at ", self.game.turn, " turns.")
+                print("Complete at ", self.turn, " turns.")
                 reward = -self.game.player_score(self.game.players[0]) + self.game.player_score(self.game.players[1])
                 
                 if reward > 0.0:
