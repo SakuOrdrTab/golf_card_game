@@ -10,6 +10,10 @@ class HumanPlayer(Player):
     Args:
         Player (): Abstract Player class
     """    
+
+    def __init__(self):
+        super().__init__()
+
     def get_player_name(self) -> str:
         """Asks for player name and returns it
 

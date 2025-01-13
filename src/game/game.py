@@ -44,7 +44,7 @@ class Game():
             self.players.append(ComputerPlayer())
 
         for _ in range(len(self.players), num_players):
-            self.players.append(RLPlayer()) # In this phase of training use RLPlayer
+            self.players.append(AdvancedComputerPlayer()) # In this phase of training use RLPlayer
         for player in self.players:
             # Deal 9 cards for each player and place them in shape of 3x3
             table_cards = self.deal_initial_cards()

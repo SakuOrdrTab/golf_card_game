@@ -13,6 +13,9 @@ class ComputerPlayer(Player):
     Incorporates slightly better heuristics and randomization.
     """
 
+    def __init__(self):
+        super().__init__()
+
     def get_player_name(self) -> str:
         prefix = choice(["TPU-", "CPU-", "GPU-", "Azure", "Docker", "Amiga", "Linux"])
         postfix = choice([
