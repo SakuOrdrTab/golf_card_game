@@ -2,6 +2,8 @@
 
 import numpy as np
 from random import randint
+from collections import Counter
+
 from stable_baselines3 import DQN
 # from gymnasium import spaces
 from .player import Player
@@ -16,7 +18,71 @@ class RLPlayer(Player):
 
     def get_player_name(self) -> str:
         return "RL Agent " + str(randint(1,10000))
+    
+    def get_algorhitmic_draw_action(self, game_status : dict) -> str:
+        """For one phase algorhitmic RL, this function is an algorhitmic version
+        of the draw from deck or played cards, so RL agent can play only 'play
+        card' phase.
 
+        Args:
+            game_status (dict): game status passed from Game()
+
+        Returns:
+            str: "p" for played deck, "d" for drawing deck
+        """
+        if game_status['played_top_card'] != None:
+            played_card_value = game_status['played_top_card'].value
+        else:
+            print("[DEBUG] No played cards")
+            return "d" # no played cards
+        
+        # keep score which seems better option, initial values
+        inclination_d = 1
+        inclination_p = 1
+        
+        current_table_cards = []
+        for card in (c for row in game_status['player'] for c in row):
+            if str(card) != "XX":
+                current_table_cards.append(int(card[1:]))
+        
+        print("[DEBUG] table card values: ", current_table_cards)
+        print("[DEBUG] played card value: ", played_card_value)
+
+        # Increase "p" inclination if p card is better than biggest table card
+        # Otherwise increase "d" inclination
+        biggest_table_card = max(current_table_cards)
+        if biggest_table_card >= played_card_value:
+            inclination_p += biggest_table_card - played_card_value
+        else:   
+            inclination_d += played_card_value - biggest_table_card
+
+        # if played card is really good, increase inclination, otherwise "d"
+        if played_card_value < 3:
+            inclination_p += (3 - played_card_value) * 2
+        elif played_card_value >= 10:
+            inclination_d += (played_card_value - 9) * 2
+
+        # If there are almost complete rows, increase "p" inclination
+        if str(played_card_value) in self._pairs_in_own_tablecards(game_status['player']):
+            inclination_p += 20
+
+        # Do the randomization and return value
+        inclination_p *= inclination_p # add to 2nd power to reduce randomness
+        inclination_d *= inclination_d
+        total_inclination = inclination_p + inclination_d
+        draw_from_deck = randint(1, total_inclination) <= inclination_d
+        print(f"[DEBUG] Did lottery: deck_inc: {inclination_d} played_inc: {inclination_p} total: {total_inclination} res: {draw_from_deck}")
+        return "d" if draw_from_deck else "p"
+        
+
+    def _pairs_in_own_tablecards(self, table_cards : list) -> list:
+        res = []
+        for row in table_cards:
+            strs = [item[1:] for item in row if item != "XX"]
+            counts = Counter(strs)
+            res.append([item for item, count in counts.items() if count > 1])
+        return res
+        
     def get_draw_action(self, game_status: dict) -> str:
         """
         1) Convert `game_status` into the same observation vector
@@ -25,17 +91,17 @@ class RLPlayer(Player):
         3) Decode the action into "d" (deck) or "p" (discard).
         """
         # We are in "draw" step => interpret the model's output accordingly.
-        obs = self._encode_observation(game_status, phase=1)
+        # obs = self._encode_observation(game_status, phase=1)
         # print("[DEBUG]Next doing model predict draw, player:", self.name)
-        action, _ = self.model.predict(obs, deterministic=True)
+        # action, _ = self.model.predict(obs, deterministic=True)
 
         # Decode the 'action' to "d" or "p" (depending on your training scheme)
         # For instance, if action==0 => "d", action==1 => "p"
-        draw_choice = "d" if action == 0 else "p"
+        draw_choice = self.get_algorhitmic_draw_action(game_status=game_status)
 
         # Save any needed internal state if you do phase-based logic
-        self.internal_phase = 2
-        self.last_obs = obs
+        # self.internal_phase = 2
+        # self.last_obs = obs
 
         return draw_choice
 
