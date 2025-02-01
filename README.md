@@ -1,4 +1,9 @@
 # Golf
+--------------------------------------------------------------------------
+IMPORTANT NOTE: The main branch is currently inactive. The One-phase-RL is
+active, as I had to make the decision process more simple for the RL agent 
+to learn.
+--------------------------------------------------------------------------
 
 Card game to test deep neural networks as computer players. Wrap ComputerPlayer class so, that it can be run as adversial network against itself and train.
 
