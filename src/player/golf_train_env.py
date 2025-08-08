@@ -5,6 +5,8 @@ from random import randint
 from collections import Counter
 import gymnasium as gym
 from gymnasium import spaces
+from typing import Optional
+import random
 
 from src.game import Game
 from src.card_deck import Card
@@ -26,14 +28,21 @@ class GolfTrainEnv(gym.Env):
         # player and others. Thus, with two players, 20 variables from 1 to 22
         self.observation_space = spaces.MultiDiscrete([22]*20)
 
-        self.game = None
+        self.game: Optional[Game] = None
         self.done = False
         self.num_players = 2  # Train with two players, seat [0] will be the trainee RL
-
-        self._last_drawn_card = None
+        self.max_turns = 100
+        
+        self._last_drawn_card: Optional[Card] = None
+        self.turn = 0
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
+
+        # Make randomness reproducible if seed provided
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed)
 
         self.turn = 0
 
@@ -52,13 +61,13 @@ class GolfTrainEnv(gym.Env):
         self.done = False
 
         # This emulates manually former phase 1
+        assert self.game is not None
         draw_action = self.get_algorhitmic_draw_action(self.game.get_game_status_for_player(self.game.players[0]))
         if draw_action == "d":
             hand_card = self.game.deck.draw_from_deck()
-            hand_card.visible = True
         else:
             hand_card = self.game.deck.draw_from_played()
-            hand_card.visible = True
+        hand_card.visible = True
         self._last_drawn_card = hand_card
 
         observation = self._get_observation()
@@ -75,21 +84,21 @@ class GolfTrainEnv(gym.Env):
         self.turn += 1
 
         # Temporary measure for agent learning: limit turns to 45
-        if self.game.turn > 45:
+        if self.turn > self.max_turns:
             self.done = True
 
+        assert self.game is not None
         if self.done:
             # If the episode is over, we can either raise or return the same
-            return self._get_observation(), 0.0, True, {}, {}
+            return self._get_observation(), 0.0, True, False, {}
 
         # Intermediate reward: the change of own score
         last_turn_score = self.game.player_score(self.game.players[0])
-
-        # We'll track reward separately for final
-        reward = 0.0
         info = {}
 
-        # phase 1 is shown in last_card_drawn
+        # IMPORTANT: Do NOT draw here. Use the card from the observation.
+        assert self._last_drawn_card is not None
+        hand_card = self._last_drawn_card
 
         # PHASE 2: "play" (action in [0..9])
         if action == 9:
@@ -112,6 +121,10 @@ class GolfTrainEnv(gym.Env):
         if self.game.check_game_over():
             self.done = True
 
+        # Reward calculation
+        current_turn_score = self.game.player_score(self.game.players[0])
+        intermediate_reward = (last_turn_score - current_turn_score) / 10.0
+
         if self.done:
             # negative final score
             # score = self.game.player_score(self.game.players[0])
@@ -121,28 +134,28 @@ class GolfTrainEnv(gym.Env):
             # reward = 1.0 if self.game.player_score(self.game.players[0]) < self.game.player_score(self.game.players[1]) else 0.0
             # relative score
             print("Complete at ", self.turn, " turns.")
-            reward = -self.game.player_score(self.game.players[0]) + self.game.player_score(self.game.players[1])
-            
+            final_reward = -self.game.player_score(self.game.players[0]) + self.game.player_score(self.game.players[1])
+            reward = final_reward + intermediate_reward
             if reward > 0.0:
                 print(f"REWARD: {reward}!")
-
-            # Calculate the intermediate reward
-            current_turn_score = self.game.player_score(self.game.players[0])
-            intermediate_reward = (-last_turn_score + current_turn_score) / 10
-
-            reward += intermediate_reward
                                    
-            obs = self._get_observation()
-            done = self.done
-            return obs, reward, done, False, info
+            obs = self._get_observation() # observation at terminal is not used by on-policy methods
+            return obs, reward, True, False, info
         
         else:
             # Not done yet => return normal step
+            # Prepare next observation: draw the next hand card NOW
+            draw_action = self.get_algorhitmic_draw_action(self.game.get_game_status_for_player(self.game.players[0]))
+            if draw_action == "d":
+                next_card = self.game.deck.draw_from_deck()
+            else:
+                next_card = self.game.deck.draw_from_played()
+            next_card.visible = True
+            self._last_drawn_card = next_card
+
+            # Return observation that matches the next decision point
             obs = self._get_observation()
-            current_turn_score = self.game.player_score(self.game.players[0])
-            intermediate_reward = (-last_turn_score + current_turn_score) / 10
             return obs, intermediate_reward, False, False, info
-        
 
         
     def _get_observation(self):
@@ -151,6 +164,7 @@ class GolfTrainEnv(gym.Env):
         self.game.get_game_status_for_player(...),
         then encode with 'game_status_to_multidiscrete'.
         """
+        assert self.game is not None
         rl_player = self.game.players[0]
 
         hand_card = self._last_drawn_card
@@ -177,7 +191,7 @@ class GolfTrainEnv(gym.Env):
         if game_status['played_top_card'] != None:
             played_card_value = game_status['played_top_card'].value
         else:
-            print("[DEBUG] No played cards")
+            # print("[DEBUG] No played cards")
             return "d" # no played cards
         
         # keep score which seems better option, initial values
@@ -189,12 +203,12 @@ class GolfTrainEnv(gym.Env):
             if str(card) != "XX":
                 current_table_cards.append(int(card[1:]))
         
-        print("[DEBUG] table card values: ", current_table_cards)
-        print("[DEBUG] played card value: ", played_card_value)
+        # print("[DEBUG] table card values: ", current_table_cards)
+        # print("[DEBUG] played card value: ", played_card_value)
 
         # Increase "p" inclination if p card is better than biggest table card
         # Otherwise increase "d" inclination
-        biggest_table_card = max(current_table_cards)
+        biggest_table_card = max(current_table_cards) if current_table_cards else 20
         if biggest_table_card >= played_card_value:
             inclination_p += biggest_table_card - played_card_value
         else:   
@@ -207,15 +221,17 @@ class GolfTrainEnv(gym.Env):
             inclination_d += (played_card_value - 9) * 2
 
         # If there are almost complete rows, increase "p" inclination
-        if str(played_card_value) in self._pairs_in_own_tablecards(game_status['player']):
+        pairs = self._pairs_in_own_tablecards(game_status['player'])
+        if any(str(played_card_value) in row for row in pairs):
             inclination_p += 20
+
 
         # Do the randomization and return value
         inclination_p *= inclination_p # add to 2nd power to reduce randomness
         inclination_d *= inclination_d
         total_inclination = inclination_p + inclination_d
         draw_from_deck = randint(1, total_inclination) <= inclination_d
-        print(f"[DEBUG] Did lottery: deck_inc: {inclination_d} played_inc: {inclination_p} total: {total_inclination} res: {draw_from_deck}")
+        # print(f"[DEBUG] Did lottery: deck_inc: {inclination_d} played_inc: {inclination_p} total: {total_inclination} res: {draw_from_deck}")
         return "d" if draw_from_deck else "p"
     
     def _pairs_in_own_tablecards(self, table_cards : list) -> list:
