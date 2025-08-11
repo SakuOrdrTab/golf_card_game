@@ -20,7 +20,7 @@ class HumanPlayer(Player):
         Returns:
             str: Human player name
         """        
-        return input("Please input you name: ")
+        return "Human" + input("Please input you name: ")
     
     def get_draw_action(self, game_status : dict) -> str:
         """Human player interface for asking whether player wants to

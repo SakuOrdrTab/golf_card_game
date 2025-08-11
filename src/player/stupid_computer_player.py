@@ -13,7 +13,7 @@ class StupidComputerPlayer(Player):
         super().__init__()
 
     def get_player_name(self) -> str:
-        scp_name = choice(["M$-DOS", "Kommodore K64", "Zinclair XZ", "Victor-20", 
+        scp_name = "Stupid" + choice(["M$-DOS", "Kommodore K64", "Zinclair XZ", "Victor-20", 
                            "Mc Birdbucket", "IPM 701", "UNIWAC 1101"])
         return scp_name + " " + str(randint(1,3)) + "." + str(randint(1,9))
 

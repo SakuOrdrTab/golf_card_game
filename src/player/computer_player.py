@@ -22,7 +22,7 @@ class ComputerPlayer(Player):
             "cruncher", "grinder", "calculator", "laptop",
             "calcinator", "abacus", "tron", "unit", "machina"
         ])
-        return prefix + postfix
+        return "Computer " + prefix + postfix
 
     def get_draw_action(self, game_status: dict) -> str:
         """
