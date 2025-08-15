@@ -75,10 +75,8 @@ class GolfTrainEnv(gym.Env):
     
     def step(self, action):
         """
-        Each step is a single sub-action for the RL seat:
-          - If phase=1 => 'draw' action
-          - If phase=2 => 'place' action
-        Then, if phase=2, we let the other seat(s) do their full turn.
+        Perform a step in the environment with the given action, playing the card
+        (discarding or placing it on the table).
         """
 
         self.turn += 1
@@ -86,6 +84,7 @@ class GolfTrainEnv(gym.Env):
         # Temporary measure for agent learning: limit turns to 45
         if self.turn > self.max_turns:
             self.done = True
+            return self._get_observation(), 0.0, False, True, {}
 
         assert self.game is not None
         if self.done:
@@ -124,7 +123,7 @@ class GolfTrainEnv(gym.Env):
 
         # Reward calculation
         current_turn_score = self.game.player_score(self.game.players[0])
-        intermediate_reward = (last_turn_score - current_turn_score) / 10.0
+        intermediate_reward = (last_turn_score - current_turn_score) / 2.0
 
         if self.done:
             # negative final score
