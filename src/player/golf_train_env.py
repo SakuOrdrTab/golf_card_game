@@ -103,6 +103,7 @@ class GolfTrainEnv(gym.Env):
         # PHASE 2: "play" (action in [0..9])
         if action == 9:
             # discard to played deck
+            hand_card.visible = True
             self.game.deck.add_to_played(self._last_drawn_card)
         else:
             row = action // 3 + 1
@@ -188,7 +189,7 @@ class GolfTrainEnv(gym.Env):
         Returns:
             str: "p" for played deck, "d" for drawing deck
         """
-        if game_status['played_top_card'] != None:
+        if game_status['played_top_card'] is not None:
             played_card_value = game_status['played_top_card'].value
         else:
             # print("[DEBUG] No played cards")

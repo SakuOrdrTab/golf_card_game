@@ -44,14 +44,15 @@ class Game():
             self.players.append(AdvancedComputerPlayer())
         if stupid_player:
             self.players.append(StupidComputerPlayer())
-
+        # Check if the number of players is valid
         if len(self.players) > num_players:
             raise ValueError('Too many players from constructor arguments')
         if num_players < 2 or num_players > 3:
             raise ValueError('Number of players must be 2-3')
+        # If there are not enough players, add computer players, currently only stupid players
         if len(self.players) < num_players:
             for _ in range(len(self.players), num_players):
-                self.players.append(StupidComputerPlayer()) # In this phase of training use RLPlayer
+                self.players.append(ComputerPlayer()) # In this phase of training use RLPlayer
         for player in self.players:
             # Deal 9 cards for each player and place them in shape of 3x3
             table_cards = self.deal_initial_cards()
@@ -117,6 +118,7 @@ class Game():
         action = player.get_play_action(self.get_game_status_for_player(player, hand_card))
         if action[0] == "p": # p means play card away from hand to played deck
             self.view.output(f"{hand_card} is placed in the played deck by {player.name}.")
+            hand_card.visible = True
             self.deck.add_to_played(hand_card)
         else: # should be a tuple (row, column) for play to table
             self.deck.add_to_played(player.table_cards[action[0]-1][action[1]-1])
@@ -141,23 +143,17 @@ class Game():
         self.player_plays_card(player, hand_card)
         self.check_full_rows(player)
 
-    def check_full_rows(self, player: Player) -> None:
-        """Checks if full rows are present and removes them if so
-
-        Args:
-            player (Player): Player whose turn it is
-        """
-        for row in player.table_cards:
-            if all([card.visible for card in row]) and len(set([card.value for card in row])) == 1:
-                self.view.output(f"{player.name}'s row of cards is complete and is removed.\n{row}")
-                player.table_cards.remove(row)
-                # Add a dummy row for RLPlayer, so table_cards.shape is always (3,3)
-                if self.rl_training_mode:
-                    player.table_cards.append([
-                        Card(Suit.SPADES, 0),
-                        Card(Suit.SPADES, 0),
-                        Card(Suit.SPADES, 0)
-                    ])
+    def check_full_rows(self, player):
+        to_remove = []
+        for i, row in enumerate(player.table_cards):
+            if all(card.visible for card in row) and len({c.value for c in row}) == 1:
+                to_remove.append(i)
+        for i in reversed(to_remove):
+            removed = player.table_cards.pop(i)
+            self.view.output(f"{player.name}'s row is removed.\n{removed}")
+            if self.rl_training_mode:
+                dummy = [Card(Suit.SPADES, 0), Card(Suit.SPADES, 0), Card(Suit.SPADES, 0)]
+                player.table_cards.append(dummy)
                     
 
     def check_game_over(self) -> bool:

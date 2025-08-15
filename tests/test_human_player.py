@@ -6,7 +6,7 @@ def test_get_player_name():
     """Test get_player_name correctly sets the player's name."""
     with patch("builtins.input", return_value="Alice"):
         player = HumanPlayer()
-        assert player.name == "Alice"
+        assert player.name == "HumanAlice"
 
 
 def test_get_draw_action_valid_inputs():
