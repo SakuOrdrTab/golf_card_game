@@ -15,6 +15,7 @@ from src.player import AdvancedComputerPlayer, ComputerPlayer, RLPlayer
 class GolfTrainEnv(gym.Env):
     """Gymnasium environment to train RL agent to play 'Golf' card game. """    
     def __init__(self):
+        """Initialize the environment."""
         super().__init__()
         
         # The golf card game play turn has two distinct steps, or phases in each
@@ -37,6 +38,13 @@ class GolfTrainEnv(gym.Env):
         self.turn = 0
 
     def reset(self, seed=None, options=None):
+        """ Reset the environment to an initial state.
+        Args:
+            seed (int, optional): Random seed for reproducibility.
+            options (dict, optional): Additional options for reset.
+        Returns:
+            tuple: Initial observation and an empty info dictionary.
+        """
         super().reset(seed=seed)
 
         # Make randomness reproducible if seed provided
@@ -77,6 +85,11 @@ class GolfTrainEnv(gym.Env):
         """
         Perform a step in the environment with the given action, playing the card
         (discarding or placing it on the table).
+        Args:
+            action (int): Action to perform, in range [0..9] where 0..8 are
+                          table positions and 9 is discard to played deck.
+        Returns:
+            tuple: (observation, reward, done, truncated, info)
         """
 
         self.turn += 1
