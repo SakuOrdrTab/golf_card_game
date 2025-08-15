@@ -30,7 +30,7 @@ class RLPlayer(Player):
         Returns:
             str: "p" for played deck, "d" for drawing deck
         """
-        if game_status['played_top_card'] != None:
+        if game_status['played_top_card'] is not None:
             played_card_value = game_status['played_top_card'].value
         else:
             print("[DEBUG] No played cards")
