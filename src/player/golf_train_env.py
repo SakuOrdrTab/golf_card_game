@@ -22,9 +22,11 @@ class GolfTrainEnv(gym.Env):
         # player's turn.
         # In this branch the RL agent playes only phase 2
 
+        # The action space consists of ten possibilities:
+        # the nine playable places in the table and the plaed deck
         self.action_space = spaces.Discrete(10)
 
-        # The observation space consists of all information available to the player;
+        # The observation space consists of all information available to the player:
         # possible hand card, played deck top card, visible table cards of the 
         # player and others. Thus, with two players, 20 variables from 1 to 22
         self.observation_space = spaces.MultiDiscrete([22]*20)
